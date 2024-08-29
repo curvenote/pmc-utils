@@ -2,18 +2,18 @@ import { z } from 'zod';
 
 // Sub-schemas
 const JournalMetaSchema = z.object({
-  'nlm-ta': z.string().optional(), // #PCDATA: Parsed character data, can contain text
+  nlmTa: z.string().optional(), // #PCDATA: Parsed character data, can contain text
   issn: z.array(
     z.object({
-      'issn-type': z.enum(['print', 'electronic', 'linking']),
+      issnType: z.enum(['print', 'electronic', 'linking']),
       value: z.string(), // #PCDATA: Parsed character data, can contain text
     }),
   ),
-  'journal-title': z.string().optional(), // #PCDATA: Parsed character data, can contain text
+  journalTitle: z.string().optional(), // #PCDATA: Parsed character data, can contain text
 });
 
 const PubDateSchema = z.object({
-  'pub-date-type': z.enum(['issue', 'article']),
+  pubDateType: z.enum(['issue', 'article']),
   day: z.string().optional(), // #PCDATA: Parsed character data, can contain text
   month: z.string().optional(), // #PCDATA: Parsed character data, can contain text
   season: z.string().optional(), // #PCDATA: Parsed character data, can contain text
@@ -21,16 +21,16 @@ const PubDateSchema = z.object({
 });
 
 const CitationSchema = z.object({
-  'pub-date': z.array(PubDateSchema),
+  pubDate: z.array(PubDateSchema),
   volume: z.string(), // #PCDATA: Parsed character data, can contain text
   issue: z.string(), // #PCDATA: Parsed character data, can contain text
   fpage: z.string().optional(), // #PCDATA: Parsed character data, can contain text
   lpage: z.string().optional(), // #PCDATA: Parsed character data, can contain text
-  'elocation-id': z.string().optional(), // #PCDATA: Parsed character data, can contain text
+  elocationId: z.string().optional(), // #PCDATA: Parsed character data, can contain text
   URL: z
     .array(
       z.object({
-        'url-type': z.enum(['citation', 'full-text']),
+        urlType: z.enum(['citation', 'full-text']),
         value: z.string(), // #PCDATA: Parsed character data, can contain text
       }),
     )
@@ -42,7 +42,7 @@ const PersonSchema = z.object({
   mname: z.string().optional(), // #PCDATA: Parsed character data, can contain text
   lname: z.string(), // #PCDATA: Parsed character data, can contain text
   email: z.string(), // #PCDATA: Parsed character data, can contain text
-  'person-type': z.enum(['author', 'reviewer']),
+  personType: z.enum(['author', 'reviewer']),
 });
 
 const ContactsSchema = z.object({
@@ -56,7 +56,19 @@ const PISchema = z.object({
   center: z.string().optional(), // #PCDATA: Parsed character data, can contain text
 });
 
-const GrantSchema = z.object({
+export const KNOWN_FUNDERS = [
+  'nih',
+  'ahrq',
+  'aspr',
+  'cdc',
+  'epa',
+  'fda',
+  'hhmi',
+  'nasa',
+  'nist',
+  'va',
+];
+export const GrantSchema = z.object({
   id: z.string().optional(), // #PCDATA: Parsed character data, can contain text
   funder: z.enum(['nih', 'ahrq', 'aspr', 'cdc', 'epa', 'fda', 'hhmi', 'nasa', 'nist', 'va']),
   PI: PISchema.optional(),
@@ -67,7 +79,7 @@ const GrantsSchema = z.object({
 });
 
 const PermissionsSchema = z.object({
-  'copyright-statement': z.string().optional(), // #PCDATA: Parsed character data, can contain text
+  copyrightStatement: z.string().optional(), // #PCDATA: Parsed character data, can contain text
 });
 
 const CustomMetaSchema = z.object({
@@ -76,27 +88,24 @@ const CustomMetaSchema = z.object({
 });
 
 const CustomMetaGroupSchema = z.object({
-  'custom-meta': z.array(CustomMetaSchema),
+  customMeta: z.array(CustomMetaSchema),
 });
 
 export const DepositMetaSchema = z.object({
   agency: z.string().optional(), // CDATA: Character data, plain text
-  'manuscript-id': z.string().optional(), // CDATA: Character data, plain text
-  'embargo-months': z
-    .enum(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'])
-    .default('0'),
+  manuscriptId: z.string().optional(), // CDATA: Character data, plain text
+  embargoMonths: z.number().min(0).max(12).default(0),
   pmid: z.string().optional(), // CDATA: Character data, plain text
   pmcid: z.string().optional(), // CDATA: Character data, plain text
   doi: z.string().optional(), // CDATA: Character data, plain text
-  'xmlns:xlink': z.string().default('http://www.w3.org/1999/xlink'),
-  'journal-meta': JournalMetaSchema,
-  'manuscript-title': z.string(), // #PCDATA: Parsed character data, can contain text
+  journalMeta: JournalMetaSchema,
+  manuscriptTitle: z.string(), // #PCDATA: Parsed character data, can contain text
   citation: CitationSchema.optional(),
   contacts: ContactsSchema,
   grants: GrantsSchema.optional(),
   permissions: PermissionsSchema.optional(),
   disclaimer: z.string().optional(), // #PCDATA: Parsed character data, can contain text
-  'custom-meta-group': CustomMetaGroupSchema.optional(),
+  customMetaGroup: CustomMetaGroupSchema.optional(),
 });
 
 // TypeScript inferred types

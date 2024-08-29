@@ -36,9 +36,15 @@ export type ContainerTitle = z.infer<typeof containerTitleSchema>;
 
 export const authorSchema = z.array(
   z.object({
+    sequence: z.enum(['first', 'additional']),
     given: z.string().min(1, 'First name is required'),
     family: z.string().min(1, 'Surname is required'),
-    email: z.string().email().optional(), // Email is optional but must be well-formatted if present
+    name: z.string().optional(),
+    prefix: z.string().optional(),
+    suffix: z.string().optional(),
+    affiliation: z.array(z.object({ name: z.string() })).optional(),
+    ORCID: z.string().optional(),
+    'authenticated-orcid': z.boolean().optional(),
   }),
 );
 export type Author = z.infer<typeof authorSchema>;
@@ -62,8 +68,9 @@ export const expectedCrossrefFieldsSchema = z.object({
   'container-title': containerTitleSchema,
   'short-container-title': shortContainerTitleSchema,
   author: authorSchema,
-  'published-online': publishedOnlineSchema,
-  'published-print': publishedPrintSchema,
-  funder: funderSchema,
+  'published-online': publishedOnlineSchema.optional(),
+  'published-print': publishedPrintSchema.optional(),
+  funder: funderSchema.optional(),
 });
+
 export type ExpectedCrossrefFields = z.infer<typeof expectedCrossrefFieldsSchema>;

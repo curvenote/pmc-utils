@@ -30,11 +30,12 @@ const expectedFields = [
 function extractExpectedFields(expected: string[], recieved: Record<string, unknown>) {
   return Object.fromEntries(
     Object.entries(recieved).filter(([key]) => expectedFields.includes(key)),
-  );
+  ) as ExpectedCrossrefFields;
 }
 
 function listMissingFields(expected: string[], recieved: Record<string, unknown>) {
-  return expected.filter((field) => !recieved[field]);
+  const missing = expected.filter((field) => !recieved[field]);
+  return missing.length > 0 ? missing : undefined;
 }
 
 export async function lookupMetadata(
@@ -55,10 +56,7 @@ export async function lookupMetadata(
   // MAYBE TODO we could validate the fields here and return an error if any are missing
   // the specific information/attributes that we need
 
-  const data = extractExpectedFields(
-    expectedFields,
-    metadata.message,
-  ) as Partial<ExpectedCrossrefFields>;
+  const data = extractExpectedFields(expectedFields, metadata.message);
 
-  return { missing, data };
+  return { doi: doiUtils.buildUrl(doi)!, missing, data };
 }
