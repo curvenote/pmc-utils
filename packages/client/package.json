@@ -1,0 +1,61 @@
+{
+  "name": "@curvenote/pmc-client",
+  "version": "0.0.1",
+  "description": "A client library for PMC utilities taht can be used in browser or node,",
+  "sideEffects": false,
+  "type": "module",
+  "exports": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "copy:version": "echo \"const version = '\"$npm_package_version\"';\nexport default version;\" > src/version.ts",
+    "clean": "rimraf dist",
+    "test": "npm run copy:version && vitest run",
+    "test:watch": "npm run copy:version && vitest watch",
+    "lint": "eslint \"src/**/*.ts*\" -c ./.eslintrc.cjs",
+    "lint:format": "prettier --check \"src/**/*.{ts,tsx,md}\"",
+    "build:esm": "tsc --project ./tsconfig.json --outDir dist",
+    "build": "npm-run-all -l clean copy:version -p build:esm",
+    "dev:esm": "tsc --project ./tsconfig.json --outDir dist --watch",
+    "dev": "npm-run-all -l clean copy:version -p dev:esm",
+    "changeset": "changeset",
+    "version": "changeset version && npm install",
+    "publish": "npm run build && npm run test && changeset publish && git push --follow-tags",
+    "check-types": "tsc --noEmit"
+  },
+  "author": "Steve Purves <steve@curvenote.com>",
+  "homepage": "https://github.com/curvenote/pmc-utils",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/curvenote/pmc-utils.git"
+  },
+  "bugs": {
+    "url": "https://github.com/curvenote/pmc-utils/issues"
+  },
+  "dependencies": {
+    "@types/xast": "^2.0.4",
+    "adm-zip": "^0.5.10",
+    "css-selector-parser": "^3.0.5",
+    "doi-utils": "^2.0.3",
+    "js-yaml": "^4.1.0",
+    "myst-common": "^1.5.1",
+    "myst-frontmatter": "^1.5.1",
+    "myst-to-jats": "^1.0.27",
+    "nanoid": "^5.0.5",
+    "unist-builder": "^4.0.0",
+    "unist-util-select": "^5.1.0",
+    "unist-util-visit": "^5.0.0",
+    "uuid": "^10.0.0",
+    "xast-util-to-xml": "^4.0.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {}
+}
