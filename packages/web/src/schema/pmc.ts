@@ -1,14 +1,16 @@
 import { z } from 'zod';
 
 // Sub-schemas
+export const KNOWN_ISSN_TYPE = ['print', 'electronic', 'linking'] as const;
+
+export const ISSNSchema = z.object({
+  issnType: z.enum(KNOWN_ISSN_TYPE),
+  value: z.string(), // #PCDATA: Parsed character data, can contain text
+});
+
 export const JournalMetaSchema = z.object({
   nlmTa: z.string().optional(), // #PCDATA: Parsed character data, can contain text
-  issn: z.array(
-    z.object({
-      issnType: z.enum(['print', 'electronic', 'linking']),
-      value: z.string(), // #PCDATA: Parsed character data, can contain text
-    }),
-  ),
+  issn: z.array(ISSNSchema),
   journalTitle: z.string().optional(), // #PCDATA: Parsed character data, can contain text
 });
 
@@ -37,12 +39,13 @@ export const CitationSchema = z.object({
     .optional(),
 });
 
+export const KNOWN_PERSONTYPE = ['author', 'reviewer'] as const;
 export const PersonSchema = z.object({
   fname: z.string(), // #PCDATA: Parsed character data, can contain text
   mname: z.string().optional(), // #PCDATA: Parsed character data, can contain text
   lname: z.string(), // #PCDATA: Parsed character data, can contain text
   email: z.string(), // #PCDATA: Parsed character data, can contain text
-  personType: z.enum(['author', 'reviewer']),
+  personType: z.enum(KNOWN_PERSONTYPE),
 });
 
 export const ContactsSchema = z.object({
@@ -67,10 +70,10 @@ export const KNOWN_FUNDERS = [
   'nasa',
   'nist',
   'va',
-];
+] as const;
 export const GrantSchema = z.object({
   id: z.string().optional(), // #PCDATA: Parsed character data, can contain text
-  funder: z.enum(['nih', 'ahrq', 'aspr', 'cdc', 'epa', 'fda', 'hhmi', 'nasa', 'nist', 'va']),
+  funder: z.enum(KNOWN_FUNDERS),
   PI: PISchema.optional(),
 });
 

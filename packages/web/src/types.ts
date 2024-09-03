@@ -4,7 +4,7 @@ export * from './schema/types.js';
 
 export type Logger = Pick<typeof console, 'debug' | 'info' | 'warn' | 'error'>;
 export type FetchLike = typeof fetch;
-export type ILookupOptions = { fetch: FetchLike; log: Logger };
+export type IClientOptions = { fetch: FetchLike; log: Logger };
 
 export type LookupResult = {
   doi: string;

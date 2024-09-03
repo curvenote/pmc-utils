@@ -7,10 +7,14 @@ export async function startPMCSubmission(manifest: AAMDepositManifest) {
 
   // in reality this is creating a job for tracking and launching
   // a long running process to deposit the files
-  const location = `../deposits/job/${jobId}`;
+  const location = `../deposits/job/${manifest.taskId}`;
   const filename = path.join(location, 'manifest.json');
   await fs.mkdir(location, { recursive: true });
   await fs.writeFile(filename, JSON.stringify(manifest, null, 2));
 
-  return jobId;
+  return { jobId, manifest };
+}
+
+export async function processPMCSubmission(jobId: string) {
+  return 'success';
 }

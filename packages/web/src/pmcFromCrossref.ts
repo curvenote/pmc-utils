@@ -1,12 +1,7 @@
 import { KNOWN_FUNDERS } from './schema/pmc.js';
 import type { PMCDepositMeta, PMCDepositGrant } from './schema/types.js';
 import type { LookupResult, UserInfo } from './types.js';
-
-function assertIsDefined<T>(value: T): asserts value is NonNullable<T> {
-  if (value === undefined || value === null) {
-    throw new Error(`${value} is not defined`);
-  }
-}
+import { assertIsDefined } from './utils.js';
 
 export function crossrefToMinimalPMCDeposit(
   crossrefData: LookupResult,
@@ -17,7 +12,7 @@ export function crossrefToMinimalPMCDeposit(
     user?: UserInfo;
   },
 ): PMCDepositMeta {
-  if (!KNOWN_FUNDERS.includes(opts.grant.funder)) {
+  if (!(KNOWN_FUNDERS as readonly string[]).includes(opts.grant.funder)) {
     throw new Error('Invalid funder');
   }
 

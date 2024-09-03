@@ -1,8 +1,9 @@
 import type { MetaFunction } from '@remix-run/node';
 import { json, useFetcher } from '@remix-run/react';
 import { withContext } from '../backend/context';
-import { startPMCSubmission } from '../backend';
+import { processPMCSubmission, startPMCSubmission } from '../backend';
 import { AAMDepositManifest } from '../../../packages/client/dist/types';
+import { useEffect, useState } from 'react';
 
 export const meta: MetaFunction = () => {
   return [
@@ -16,18 +17,40 @@ async function actionCheckDoi(formData: FormData) {
 }
 
 const manifest: AAMDepositManifest = {
+  taskId: 'task-1234',
+  agency: 'hhmi',
   files: [
     {
-      filename: 'data/manuscript.docx',
-      kind: 'Manuscript', // validate against a list of known types
+      filename: 'manuscript.docx',
+      type: 'manuscript', // validate against a list of known types
       label: '1',
-      path: '/some/bucket/uid/depositId/manuscript',
+      storage: 'local',
+      path: './data',
+      contentType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     },
     {
-      filename: 'data/figures.docx',
-      kind: 'Figures', // validate against a list of known types
-      label: '2',
-      path: '/some/bucket/uid/depositId/figures',
+      filename: 'figure1.png',
+      type: 'figure', // validate against a list of known types
+      label: 'Figure 1',
+      storage: 'local',
+      path: './data',
+      contentType: 'image/png',
+    },
+    {
+      filename: 'table1.csv',
+      type: 'table', // validate against a list of known types
+      label: 'Table 1',
+      storage: 'local',
+      path: './data',
+      contentType: 'text/csv',
+    },
+    {
+      filename: 'figures.docx',
+      type: 'supplement', // validate against a list of known types
+      label: 'Supplementary Figures',
+      storage: 'local',
+      path: './data',
+      contentType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     },
   ],
   doi: '10.1038/s41467-024-48562-0',
@@ -35,21 +58,29 @@ const manifest: AAMDepositManifest = {
     title: 'Title', // required
     journal: {
       issn: '1234-567',
+      issnType: 'electronic',
       title: 'Journal',
       shortTitle: 'J.',
     },
     authors: [
       // one is required or type reviewer
-      { fname: 'First', mname: 'Middle', lname: 'Last', email: '', contactType: 'reviewer' },
+      { fname: 'First', lname: 'Last', email: 'first.last@curvenote.org', contactType: 'reviewer' },
     ],
     funding: [{ funder: 'hhmi' }, { funder: 'nih', grantId: 'q1w2e3r4' }], // can be empty
   },
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function actionSubmitToPmc(formData: FormData) {
-  const jobId = await startPMCSubmission(manifest);
+  const result = await startPMCSubmission(manifest);
+  return result;
+}
 
-  return { jobId };
+async function actionProcessSubmission(formData: FormData) {
+  const jobId = formData.get('jobId') as string;
+  const status = await processPMCSubmission(jobId);
+
+  return { jobId, status };
 }
 
 export const action = withContext(async (ctx) => {
@@ -63,6 +94,9 @@ export const action = withContext(async (ctx) => {
     case 'submit-to-pmc': {
       return json({ intent, result: await actionSubmitToPmc(formData) });
     }
+    case 'process-deposit': {
+      return json({ intent, result: await actionProcessSubmission(formData) });
+    }
   }
 
   return { intent };
@@ -70,11 +104,25 @@ export const action = withContext(async (ctx) => {
 
 export default function Index() {
   const fetcher = useFetcher<{ intent: string; error?: string; result?: { jobId?: string } }>();
+  const [intents, setIntents] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (fetcher.data && fetcher.data.intent) {
+      setIntents((prev) => (fetcher.data?.intent ? [...prev, fetcher.data.intent] : prev));
+    }
+  }, [fetcher.data]);
+
   return (
     <div className="container max-w-3xl mx-auto">
       <div className="p-12 space-y-6 font-sans">
         <h1 className="text-3xl">PMC Prototyping</h1>
-        <div className="rounded bg-green-200 p-1">Form Action: {fetcher.data?.intent}</div>
+        <div>
+          {intents.map((intent, i) => (
+            <div key={`${intent}-${i}`} className="rounded bg-green-200 p-1">
+              Form Action: {intent}
+            </div>
+          ))}
+        </div>
         <div className="space-y-3">
           <h2 className="text-2xl">Upload files</h2>
           <div className="py-16 text-center bg-gray-100 border border-gray-500 border-dashed rounded">
@@ -162,6 +210,15 @@ export default function Index() {
               <pre className="text-sm">{JSON.stringify(manifest, null, 2)}</pre>
             </details>
           </div>
+        </fetcher.Form>
+        <fetcher.Form className="space-y-3" method="post">
+          <button
+            name="intent"
+            value="process-deposit"
+            className="px-4 py-1 text-black bg-orange-300 disabled:bg-gray-400 disabled:cursor-not-allowed rounded"
+          >
+            🤖 Process
+          </button>
         </fetcher.Form>
       </div>
     </div>

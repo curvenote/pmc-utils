@@ -1,7 +1,7 @@
 {
-  "name": "@curvenote/pmc-client",
+  "name": "@curvenote/pmc-web",
   "version": "0.0.1",
-  "description": "A client library for PMC utilities taht can be used in browser or node,",
+  "description": "A client library for PMC utilities that can be used in browser or node,",
   "sideEffects": false,
   "type": "module",
   "exports": "./dist/index.js",
@@ -24,7 +24,7 @@
     "build:esm": "tsc --project ./tsconfig.json --outDir dist",
     "build": "npm-run-all -l clean copy:version -p build:esm",
     "dev:esm": "tsc --project ./tsconfig.json --outDir dist --watch",
-    "dev": "npm-run-all -l clean copy:version -p dev:esm",
+    "dev": "npm-run-all -l copy:version -p dev:esm",
     "changeset": "changeset",
     "version": "changeset version && npm install",
     "publish": "npm run build && npm run test && changeset publish && git push --follow-tags",

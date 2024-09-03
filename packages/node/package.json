@@ -1,7 +1,7 @@
 {
-  "name": "@curvenote/pmc-utils",
+  "name": "@curvenote/pmc-node",
   "version": "0.0.1",
-  "description": "Utilities for PMC submissions",
+  "description": "Node Utilities for PMC submissions including a CLI",
   "sideEffects": false,
   "type": "module",
   "exports": "./dist/index.js",
@@ -23,7 +23,9 @@
     "clean": "rimraf dist",
     "unlink": "npm uninstall -g pmc-utils;",
     "link": "npm run unlink; npm link;",
-    "dev": "npm run copy:version && npm run link && esbuild src/cli/index.ts --bundle --outfile=dist/pmc.cjs --platform=node --external:fsevents --watch",
+    "dev:cli": "npm run link && esbuild src/cli/index.ts --bundle --outfile=dist/pmc.cjs --platform=node --external:fsevents --watch",
+    "dev:esm": "tsc --project ./tsconfig.json --outDir dist --watch",
+    "dev": "npm-run-all -l copy:version -p dev:esm dev:cli",
     "test": "npm run copy:version && vitest run",
     "test:watch": "npm run copy:version && vitest watch",
     "lint": "eslint \"src/**/*.ts*\" -c ./.eslintrc.cjs",
@@ -47,7 +49,7 @@
     "url": "https://github.com/curvenote/pmc-utils/issues"
   },
   "dependencies": {
-    "@curvenote/pmc-client": "*",
+    "@curvenote/pmc-web": "*",
     "@types/xast": "^2.0.4",
     "adm-zip": "^0.5.10",
     "chalk": "^5.3.0",
@@ -62,6 +64,7 @@
     "myst-frontmatter": "^1.5.1",
     "myst-to-jats": "^1.0.27",
     "nanoid": "^5.0.5",
+    "tar": "^7.4.3",
     "unist-builder": "^4.0.0",
     "unist-util-select": "^5.1.0",
     "unist-util-visit": "^5.0.0",
@@ -76,6 +79,7 @@
     "@types/inquirer": "^9.0.7",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^20.11.13",
+    "@types/tar": "^6.1.13",
     "@types/which": "^3.0.3"
   }
 }

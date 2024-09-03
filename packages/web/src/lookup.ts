@@ -1,8 +1,8 @@
-import type { FetchLike, ILookupOptions, Logger } from './types.js';
+import type { FetchLike, IClientOptions, Logger } from './types.js';
 import { doi as doiUtils } from 'doi-utils';
 import type { ExpectedCrossrefFields } from './schema/types.js';
 
-async function makeMetadataRequest(doi: string, opts: ILookupOptions) {
+async function makeMetadataRequest(doi: string, opts: IClientOptions) {
   const url = `https://api.crossref.org/works/${doi}`;
   const resp = await opts.fetch(url);
 
