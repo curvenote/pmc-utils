@@ -1,17 +1,17 @@
 import { KNOWN_FUNDERS, KNOWN_ISSN_TYPE } from './schema/pmc.js';
-import type { AAMDepositManifest, PMCDepositGrant, PMCISSN } from './types.js';
+import type { AAMDepositManifest, PMCFunder, PMCISSNType } from './types.js';
 import { toXml } from 'xast-util-to-xml';
 import { u } from 'unist-builder';
 import { e, t } from './utils.js';
 import { doi as doiUtils } from 'doi-utils';
 
-export function validatePMCFunder(funder: string): asserts funder is PMCDepositGrant['funder'] {
+export function validatePMCFunder(funder: string): asserts funder is PMCFunder {
   if (!(KNOWN_FUNDERS as readonly string[]).includes(funder)) {
     throw new Error(`Invalid funder: ${funder}`);
   }
 }
 
-export function validatePMCISSNType(issnType: string): asserts issnType is PMCISSN['issnType'] {
+export function validatePMCISSNType(issnType: string): asserts issnType is PMCISSNType {
   if (!(KNOWN_ISSN_TYPE as readonly string[]).includes(issnType)) {
     throw new Error(`Invalid issnType: ${issnType}`);
   }
