@@ -21,7 +21,7 @@ async function buildDepositCLI(
   let maybeManifest = {};
   try {
     maybeManifest = JSON.parse(await fs.readFile(manifestPath, 'utf-8'));
-  } catch (e) {
+  } catch (e: any) {
     session.log.error(`Failed to parse manifest at ${manifestPath}: ${e.message}`);
     session.log.debug(e);
     process.exit(1);

@@ -1,5 +1,9 @@
-import { KNOWN_FUNDERS, KNOWN_ISSN_TYPE, PMCDepositMetaSchema } from './schema/pmc.js';
-import type { AAMDepositManifest, PMCDepositGrant, PMCDepositMeta, PMCISSN } from './types.js';
+import { KNOWN_FUNDERS, KNOWN_ISSN_TYPE } from './schema/pmc.js';
+import type { AAMDepositManifest, PMCDepositGrant, PMCISSN } from './types.js';
+import { toXml } from 'xast-util-to-xml';
+import { u } from 'unist-builder';
+import { e, t } from './utils.js';
+import { doi as doiUtils } from 'doi-utils';
 
 export function validatePMCFunder(funder: string): asserts funder is PMCDepositGrant['funder'] {
   if (!(KNOWN_FUNDERS as readonly string[]).includes(funder)) {
@@ -13,50 +17,53 @@ export function validatePMCISSNType(issnType: string): asserts issnType is PMCIS
   }
 }
 
-export function pmcDepositFromManifest(manifest: AAMDepositManifest): PMCDepositMeta {
-  const { agency, doi, metadata } = manifest;
-
-  validatePMCISSNType(metadata.journal.issnType);
-
-  const deposit: PMCDepositMeta = {
-    agency,
-    doi,
-    embargoMonths: 0,
-    manuscriptTitle: metadata.title, // TODO process to XML, could have formatting 'b|i|u|sub|sup"
-    journalMeta: {
-      issn: [
-        {
-          issnType: metadata.journal.issnType,
-          value: metadata.journal.issn,
-        },
-      ],
-    },
-    contacts: {
-      person: metadata.authors.map((author) => ({
-        personType: author.contactType,
-        fname: author.fname,
-        mname: author.mname,
-        lname: author.lname,
-        email: author.email,
-      })),
-    },
-    grants: {
-      grant: metadata.funding.map((funding) => {
-        validatePMCFunder(funding.funder);
-        return {
-          id: funding.grantId,
-          funder: funding.funder,
-        };
-      }),
-    },
-  };
-
-  const result = PMCDepositMetaSchema.safeParse(deposit);
-  if (result.error) {
-    throw new Error(
-      `Processing the manifest generated an invalid deposit: ${result.error.message}`,
-    );
+/**
+ * create a tree from the manifest containing the minimal metadata needed for a PMC deposit
+ *
+ * @param manifest
+ * @returns
+ */
+function treeFromManifest(manifest: AAMDepositManifest) {
+  const reviewer = manifest.metadata.authors.find((author) => author.contactType === 'reviewer');
+  if (!reviewer) {
+    throw new Error('At least one author must be a reviewer');
   }
 
-  return deposit;
+  manifest.metadata.funding.forEach((funding) => {
+    validatePMCFunder(funding.funder);
+  });
+
+  const children = [
+    e('manuscript-title', [t(manifest.metadata.title)]),
+    e('journal-meta', [e('issn', { issnType: 'print' }, [t(manifest.metadata.journal.issn)])]),
+    e('contacts', [
+      e('person', {
+        personType: 'reviewer',
+        fname: reviewer.fname,
+        lname: reviewer.lname,
+        email: reviewer.email,
+      }),
+    ]),
+    e('grants', [
+      ...manifest.metadata.funding.map((funding) => {
+        return e('grant', { id: funding.grantId, funder: funding.funder });
+      }),
+    ]),
+  ];
+
+  if (manifest.doi) {
+    children.push(e('URL', { urlType: 'full-text' }, [t(doiUtils.buildUrl(manifest.doi))]);
+  }
+
+  const body = e('manuscript-submit', { agency: manifest.agency, embargoMonths: 0 }, children);
+
+  return u('root', [
+    u('instruction', { name: 'xml', value: 'version="1.0" encoding="utf-8"' }),
+    u('doctype', { name: 'manuscript-submit', system: 'manuscript-bulk.dtd' }),
+    body,
+  ]);
+}
+
+export function pmcXmlFromManifest(manifest: AAMDepositManifest): string {
+  return toXml(treeFromManifest(manifest), { closeEmptyElements: true });
 }

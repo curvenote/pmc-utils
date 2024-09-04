@@ -41,7 +41,6 @@
     "url": "https://github.com/curvenote/pmc-utils/issues"
   },
   "dependencies": {
-    "@types/xast": "^2.0.4",
     "adm-zip": "^0.5.10",
     "css-selector-parser": "^3.0.5",
     "doi-utils": "^2.0.3",
@@ -54,8 +53,9 @@
     "unist-util-select": "^5.1.0",
     "unist-util-visit": "^5.0.0",
     "uuid": "^10.0.0",
+    "xast-util-from-xml": "^4.0.0",
     "xast-util-to-xml": "^4.0.0",
+    "xml-formatter": "^3.6.3",
     "zod": "^3.23.8"
-  },
-  "devDependencies": {}
+  }
 }

@@ -1,9 +1,10 @@
 import type { MetaFunction } from '@remix-run/node';
 import { json, useFetcher } from '@remix-run/react';
 import { withContext } from '../backend/context';
-import { processPMCSubmission, startPMCSubmission } from '../backend';
-import { AAMDepositManifest } from '../../../packages/client/dist/types';
+import { createDepositFile, createJobManifest } from '../backend';
+import { AAMDepositManifest } from '@curvenote/pmc-web';
 import { useEffect, useState } from 'react';
+import manifest from '../components/manifest.json';
 
 export const meta: MetaFunction = () => {
   return [
@@ -16,71 +17,18 @@ async function actionCheckDoi(formData: FormData) {
   return null;
 }
 
-const manifest: AAMDepositManifest = {
-  taskId: 'task-1234',
-  agency: 'hhmi',
-  files: [
-    {
-      filename: 'manuscript.docx',
-      type: 'manuscript', // validate against a list of known types
-      label: '1',
-      storage: 'local',
-      path: './data',
-      contentType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    },
-    {
-      filename: 'figure1.png',
-      type: 'figure', // validate against a list of known types
-      label: 'Figure 1',
-      storage: 'local',
-      path: './data',
-      contentType: 'image/png',
-    },
-    {
-      filename: 'table1.csv',
-      type: 'table', // validate against a list of known types
-      label: 'Table 1',
-      storage: 'local',
-      path: './data',
-      contentType: 'text/csv',
-    },
-    {
-      filename: 'figures.docx',
-      type: 'supplement', // validate against a list of known types
-      label: 'Supplementary Figures',
-      storage: 'local',
-      path: './data',
-      contentType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    },
-  ],
-  doi: '10.1038/s41467-024-48562-0',
-  metadata: {
-    title: 'Title', // required
-    journal: {
-      issn: '1234-567',
-      issnType: 'electronic',
-      title: 'Journal',
-      shortTitle: 'J.',
-    },
-    authors: [
-      // one is required or type reviewer
-      { fname: 'First', lname: 'Last', email: 'first.last@curvenote.org', contactType: 'reviewer' },
-    ],
-    funding: [{ funder: 'hhmi' }, { funder: 'nih', grantId: 'q1w2e3r4' }], // can be empty
-  },
-};
-
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-async function actionSubmitToPmc(formData: FormData) {
-  const result = await startPMCSubmission(manifest);
+async function actionCreateJobManifest(formData: FormData) {
+  const result = await createJobManifest(manifest as AAMDepositManifest);
   return result;
 }
 
-async function actionProcessSubmission(formData: FormData) {
+async function actionCreateDepositFile(formData: FormData) {
   const jobId = formData.get('jobId') as string;
-  const status = await processPMCSubmission(jobId);
+  console.log('Creating deposit file for job', jobId);
+  const { ok, error, stdout, xml } = await createDepositFile(jobId);
 
-  return { jobId, status };
+  return { jobId, ok, error, stdout, xml };
 }
 
 export const action = withContext(async (ctx) => {
@@ -91,19 +39,98 @@ export const action = withContext(async (ctx) => {
     case 'check-doi': {
       return json({ intent, result: await actionCheckDoi(formData) });
     }
-    case 'submit-to-pmc': {
-      return json({ intent, result: await actionSubmitToPmc(formData) });
+    case 'create-job-manifest': {
+      return json({ intent, result: await actionCreateJobManifest(formData) });
     }
-    case 'process-deposit': {
-      return json({ intent, result: await actionProcessSubmission(formData) });
+    case 'create-deposit': {
+      return json({ intent, result: await actionCreateDepositFile(formData) });
     }
   }
 
   return { intent };
 });
 
+function Select({
+  name,
+  value,
+  onChange,
+}: {
+  name: string;
+  value: string;
+  onChange?: (value: string) => void;
+}) {
+  return (
+    <div className="flex flex-col flex-grow max-w-sm">
+      <label id={`${name}-label`} htmlFor={name} className="text-xs">
+        type
+      </label>
+      <select className="p-1 border border-gray-300 rounded" value={value}>
+        <option value="manuscript">Manuscript</option>
+        <option value="figure">Figure</option>
+        <option value="table">Table</option>
+        <option value="supplementary">Supplementary</option>
+      </select>
+    </div>
+  );
+}
+
+function TextField({
+  name,
+  label,
+  type = 'text',
+  value,
+  disabled = false,
+}: {
+  name: string;
+  label: string;
+  type?: string;
+  value: string;
+  disabled?: boolean;
+}) {
+  return (
+    <div className="flex flex-col flex-grow max-w-sm">
+      <label id={`${name}-label`} htmlFor={name} className="text-xs">
+        {label}
+      </label>
+      <input
+        type={type}
+        name={name}
+        className="p-1 border border-gray-300 rounded"
+        placeholder={`e.g. ${label}`}
+        value={value}
+        aria-labelledby={`${name}-label`}
+        disabled={disabled}
+      />
+    </div>
+  );
+}
+
+function formatXml(xml: string, tab?: string) {
+  // tab = optional indent value, default is tab (\t)
+  let formatted = '',
+    indent = '';
+  tab = tab || '\t';
+  xml.split(/>\s*</).forEach(function (node) {
+    if (node.match(/^\/\w/)) indent = indent.substring(tab.length); // decrease indent by one 'tab'
+    formatted += indent + '<' + node + '>\r\n';
+    if (node.match(/^<?\w[^>]*[^\/]$/)) indent += tab; // increase indent
+  });
+  return formatted.substring(1, formatted.length - 3);
+}
+
 export default function Index() {
-  const fetcher = useFetcher<{ intent: string; error?: string; result?: { jobId?: string } }>();
+  const fetcher = useFetcher<{
+    intent: string;
+    error?: string;
+    result?: {
+      jobId?: string;
+      manifest?: AAMDepositManifest;
+      ok?: boolean;
+      error?: string;
+      stdout?: string;
+      xml?: string;
+    };
+  }>();
   const [intents, setIntents] = useState<string[]>([]);
 
   useEffect(() => {
@@ -113,113 +140,113 @@ export default function Index() {
   }, [fetcher.data]);
 
   return (
-    <div className="container max-w-3xl mx-auto">
-      <div className="p-12 space-y-6 font-sans">
+    <div className="container max-w-4xl mx-auto font-mono">
+      <div className="p-12 space-y-6">
         <h1 className="text-3xl">PMC Prototyping</h1>
-        <div>
+        <details>
+          <summary className="text-sm">actions</summary>
           {intents.map((intent, i) => (
             <div key={`${intent}-${i}`} className="rounded bg-green-200 p-1">
               Form Action: {intent}
             </div>
           ))}
-        </div>
+        </details>
         <div className="space-y-3">
-          <h2 className="text-2xl">Upload files</h2>
-          <div className="py-16 text-center bg-gray-100 border border-gray-500 border-dashed rounded">
-            will be a dropzone
-          </div>
-          <div className="flex items-center gap-2">
-            <input
-              name="file-1-filename"
-              type="text"
-              value="./manuscript.docx"
-              className="flex-grow p-1 border border-gray-300 rounded"
-            />
-            <div>Type:</div>
-            <input
-              name="file-1-kind"
-              type="text"
-              value="Manuscript"
-              className="flex-grow p-1 border border-gray-300 rounded"
-            />
-            <div>X</div>
-          </div>
-          <div className="flex items-center gap-2">
-            <input
-              name="file-2-filename"
-              type="text"
-              value="./figures.zip"
-              className="flex-grow p-1 border border-gray-300 rounded"
-            />
-            <div>Type:</div>
-            <input
-              name="file-2-kind"
-              type="text"
-              value="Figures"
-              className="flex-grow p-1 border border-gray-300 rounded"
-            />
-            <div>X</div>
-          </div>
-        </div>
-        <fetcher.Form className="space-y-3" method="post">
-          <h2 className="text-2xl">Metadata</h2>
-          <div className="flex gap-2 item-end">
-            <div className="flex flex-col flex-grow max-w-sm">
-              <label id="doi-label" htmlFor="doi" className="text-xs">
-                DOI
-              </label>
-              <input
-                type="text"
-                name="doi"
-                className="p-1 border border-gray-300 rounded"
-                placeholder="e.g. 10.1038/s41467-024-48562-0 or full URL"
-                value="10.1038/s41467-024-48562-0"
-                aria-labelledby="doi-label"
-                disabled
-              />
+          <h2 className="text-2xl">Form based Entry</h2>
+          <div className="rounded p-3 border space-y-6">
+            <h3 className="text-xl">Files</h3>
+            <div className="flex items-end gap-2">
+              <TextField name="file-1-filename" label="filename" value="./manuscript.docx" />
+              <Select name="file-1-type" value="manuscript" />
+              <TextField name="file-1-label" label="label" value="1" />
+              <div className="align-middle">X</div>
             </div>
-            <div className="flex items-end">
+            <div className="flex items-end gap-2">
+              <TextField name="file-2-filename" label="filename" value="./figure1.png" />
+              <Select name="file-2-type" value="figure" />
+              <TextField name="file-2-label" label="label" value="Figure 1" />
+              <div className="align-middle">X</div>
+            </div>
+            <div className="flex items-end gap-2">
+              <TextField name="file-3-filename" label="filename" value="./table1.csv" />
+              <Select name="file-3-type" value="table" />
+              <TextField name="file-3-label" label="label" value="Table 1" />
+              <div className="align-middle">X</div>
+            </div>
+            <div className="flex items-end gap-2">
+              <TextField name="file-4-filename" label="filename" value="./figures.docx" />
+              <Select name="file-4-type" value="supplementary" />
+              <TextField name="file-4-label" label="label" value="Figures" />
+              <div className="align-middle">X</div>
+            </div>
+            <fetcher.Form className="space-y-3" method="post">
+              <h3 className="text-xl">DOI Lookup</h3>
+              <div className="flex gap-2 item-end">
+                <TextField name="doi" label="DOI" value="10.1038/s41467-024-48562-0" />
+                <div className="flex items-end">
+                  <button
+                    name="intent"
+                    value="check-doi"
+                    className="px-4 py-1 text-white bg-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed rounded"
+                    disabled
+                  >
+                    Check DOI
+                  </button>
+                </div>
+              </div>
+            </fetcher.Form>
+            <TextField
+              name="manuscript-title"
+              label="Manuscript Title"
+              value="My Research Article"
+            />
+            <TextField name="journal-lookup" label="Journal Search" value="🔎" />
+            <TextField name="funding-lookup" label="Funding Search" value="🔎" />
+            <fetcher.Form className="space-y-3" method="post">
+              <div className="flex flex-col items-start gap-3">
+                <button
+                  name="intent"
+                  value="create-job-manifest"
+                  className="px-4 py-1 text-white bg-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed rounded"
+                >
+                  Create Job Manifest 📃
+                </button>
+                {fetcher.state === 'loading' &&
+                  fetcher.formData?.get('intent') === 'create-job-manifest' && (
+                    <div className=" text-green-500">Submitting...</div>
+                  )}
+                {fetcher.data?.intent === 'create-job-manifest' && (
+                  <div className="text-sm text-green-600">
+                    Sent job {fetcher.data.result?.jobId}
+                  </div>
+                )}
+                {fetcher.data?.result?.manifest && (
+                  <details className="text-green-600">
+                    <summary className="text-sm">Manifest</summary>
+                    <pre className="text-sm">{JSON.stringify(manifest, null, 2)}</pre>
+                  </details>
+                )}
+              </div>
+            </fetcher.Form>
+            <fetcher.Form className="space-y-3" method="post">
+              <input type="hidden" name="jobId" value={fetcher.data?.result?.jobId} />
               <button
                 name="intent"
-                value="check-doi"
+                value="create-deposit"
                 className="px-4 py-1 text-white bg-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed rounded"
-                disabled
+                disabled={!fetcher.data?.result?.jobId}
               >
-                Check DOI
+                Create Deposit File 🤖
               </button>
-            </div>
+              {fetcher.data?.result?.xml && (
+                <details className="text-green-600">
+                  <summary className="text-sm">bulk_meta.xml</summary>
+                  <pre className="text-sm">{formatXml(fetcher.data?.result?.xml)}</pre>
+                </details>
+              )}
+            </fetcher.Form>
           </div>
-        </fetcher.Form>
-        <fetcher.Form className="space-y-3" method="post">
-          <div className="flex flex-col items-start gap-3">
-            <button
-              name="intent"
-              value="submit-to-pmc"
-              className="px-4 py-1 text-white bg-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed rounded"
-            >
-              Submit to PMC
-            </button>
-            {fetcher.state === 'loading' && fetcher.formData?.get('intent') === 'submit-to-pmc' && (
-              <div className=" text-green-500">Submitting...</div>
-            )}
-            {fetcher.data?.intent === 'submit-to-pmc' && (
-              <div className="text-green-500">Started job {fetcher.data.result?.jobId}</div>
-            )}
-            <details>
-              <summary>Manifest</summary>
-              <pre className="text-sm">{JSON.stringify(manifest, null, 2)}</pre>
-            </details>
-          </div>
-        </fetcher.Form>
-        <fetcher.Form className="space-y-3" method="post">
-          <button
-            name="intent"
-            value="process-deposit"
-            className="px-4 py-1 text-black bg-orange-300 disabled:bg-gray-400 disabled:cursor-not-allowed rounded"
-          >
-            🤖 Process
-          </button>
-        </fetcher.Form>
+        </div>
       </div>
     </div>
   );

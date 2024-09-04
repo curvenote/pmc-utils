@@ -1,5 +1,5 @@
 import {
-  pmcDepositFromManifest,
+  pmcXmlFromManifest,
   type AAMDepositManifest,
   type IClientOptions,
 } from '@curvenote/pmc-web';
@@ -98,7 +98,7 @@ export async function buildDeposit(
   const manifestText = preparePMCManifestText(manifest);
 
   // prepare the JSON metadtata object
-  const meta = pmcDepositFromManifest(manifest);
+  const xml = pmcXmlFromManifest(manifest);
 
   // 0 create the deposit folder
   const depositFolder = path.join(opts.output ?? 'deposits', `/pmc/${manifest.taskId}`);
@@ -128,11 +128,8 @@ export async function buildDeposit(
   // write the manifest.txt file
   await fs.writeFile(path.join(depositFolder, 'manifest.txt'), manifestText);
 
-  // write the bulk_meta.json
-  await fs.writeFile(path.join(depositFolder, 'bulk_meta.json'), JSON.stringify(meta));
-
   // write the bulk_meta.xml file using the meta object, converting to XML using a known dtd
-  // await fs.writeFile(path.join(depositFolder, 'bulk_meta.xml'), convertToXML(meta));
+  await fs.writeFile(path.join(depositFolder, 'bulk_meta.xml'), xml);
 
   // create a tar.gz file using the depositFolder contents
   const tarFileName = path.join(opts.output ?? 'deposits', `/pmc/${manifest.taskId}.tar.gz`);
