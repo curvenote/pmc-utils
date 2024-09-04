@@ -11,13 +11,15 @@
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
+    "@curvenote/pmc-web": "*",
     "@remix-run/node": "^2.11.2",
     "@remix-run/react": "^2.11.2",
     "@remix-run/serve": "^2.11.2",
+    "classnames": "^2.5.1",
     "isbot": "^4.1.0",
+    "minisearch": "^7.1.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "@curvenote/pmc-web": "*"
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@remix-run/dev": "^2.11.2",

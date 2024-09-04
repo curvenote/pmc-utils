@@ -52,7 +52,9 @@ function treeFromManifest(manifest: AAMDepositManifest) {
   ];
 
   if (manifest.doi) {
-    children.push(e('URL', { urlType: 'full-text' }, [t(doiUtils.buildUrl(manifest.doi))]);
+    children.push(
+      e('URL', { urlType: 'full-text' }, [t(doiUtils.buildUrl(manifest.doi) as string)]),
+    );
   }
 
   const body = e('manuscript-submit', { agency: manifest.agency, embargoMonths: 0 }, children);

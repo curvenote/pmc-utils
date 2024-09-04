@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import { fileURLToPath } from 'url';
 import { exec } from 'node:child_process';
 import { AAMDepositManifest } from '@curvenote/pmc-web';
+import MiniSearch from 'minisearch';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -50,10 +52,41 @@ export async function createDepositFile(jobId: string) {
       'utf-8',
     );
 
-    console.log(xml);
-
     return { ok: true, stdout, xml };
   } catch (error) {
     return { ok: false, error };
+  }
+}
+
+export async function nihFuzzyJournalLookup(search: string) {
+  console.log('Searching for:', search);
+  try {
+    const data = await fs.readFile(
+      path.join(path.resolve(__dirname, '../../..'), 'data', 'journals.json'),
+      'utf-8',
+    );
+
+    const journals = JSON.parse(data).map((journal: any, id: number) => ({ id, ...journal }));
+
+    const miniSearch = new MiniSearch({
+      fields: ['JournalTitle', 'NlmId', 'MedAbbr'], // fields to index for full-text search
+      storeFields: ['name', 'description'], // fields to return with search results
+    });
+
+    miniSearch.addAll(journals);
+    const results = miniSearch.search(search);
+
+    const records = results
+      .map((result: any) => ({
+        ...journals.find((journal: any) => journal.id === result.id),
+        score: result.score,
+      }))
+      .slice(0, 20);
+
+    console.log('Results:', records.length, JSON.stringify(records, null, 2));
+    return { journals: records, perPage: 20, total: results.length };
+  } catch (error) {
+    console.error('Error reading journals file', error);
+    return { journals: [], perPage: 0, total: 0 };
   }
 }
