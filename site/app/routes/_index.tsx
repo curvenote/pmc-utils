@@ -117,9 +117,59 @@ async function actionJournalNIH(formData: FormData) {
 }
 
 async function actionFundingNIH(formData: FormData) {
-  const funding = formData.get('funding-lookup') as string;
-  console.log('Looking up funding', funding);
-  return { funding };
+  const awardId = formData.get('awardId') as string;
+  const awardeeFirstName = formData.get('awardeeFirstName') as string;
+  const awardeeLastName = formData.get('awardeeLastName') as string;
+  console.log('Looking up funding', awardId, awardeeFirstName, awardeeLastName);
+
+  try {
+    const payload = {
+      criteria: {
+        use_relevance: true,
+        include_active_projects: true,
+        project_nums: [awardId],
+        pi_names: [
+          {
+            first_name: awardeeFirstName,
+            last_name: awardeeLastName,
+          },
+        ],
+      },
+      include_fields: ['ProjectNum', 'ProjectTitle', 'ProjectId', 'Organization'],
+      offset: 0,
+      limit: 25,
+      sort_field: 'project_start_date',
+      sort_order: 'desc',
+    };
+
+    const resp = await fetch('https://api.reporter.nih.gov/v2/projects/search', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+      headers: {
+        'Content-Type': 'application/json',
+        accept: 'application/json',
+      },
+    });
+
+    if (!resp.ok) {
+      throw new Error(`Failed to lookup funding ${resp.status} ${resp.statusText}`);
+    }
+
+    const data = await resp.json();
+
+    console.log('Funding data', data);
+
+    return { funding: data };
+  } catch (e: any) {
+    console.error(
+      'Error looking up funding',
+      awardId,
+      awardeeFirstName,
+      awardeeLastName,
+      e.message,
+    );
+    return { error: e.message, awardId, awardeeFirstName, awardeeLastName };
+  }
 }
 
 export const action = withContext(async (ctx) => {
@@ -145,7 +195,7 @@ export const action = withContext(async (ctx) => {
     case 'journal-lookup-nih': {
       return json({ intent, result: await actionJournalNIH(formData) });
     }
-    case 'funding-lookup-nih': {
+    case 'fundingLookupNih': {
       return json({ intent, result: await actionFundingNIH(formData) });
     }
   }
@@ -272,6 +322,7 @@ export default function Index() {
       journals?: PMCJournalMeta[];
       total?: number;
       perPage?: number;
+      funding?: any;
     };
   }>();
   const [intents, setIntents] = useState<string[]>([]);
@@ -394,18 +445,33 @@ export default function Index() {
                 />
               )}
             </fetcher.Form>
-            <div className="flex items-end gap-2">
-              <TextField name="funding-lookup" label="Funding Search" />
-              <div>
-                <button
-                  name="intent"
-                  value="funding-lookup-nih"
-                  className="px-4 py-1 text-white bg-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed rounded"
-                >
-                  Search (nih reporter)
-                </button>
+            <fetcher.Form className="space-y-3" method="post">
+              <div className="px-2 py-4 border rounded border-gray-300 relative w-full flex flex-col gap-2">
+                <div className="text-xs absolute -top-2 left-2 bg-white">Funding Search</div>
+                <div className="flex gap-3">
+                  <TextField name="awardId" label="Grant Id / Project Number" />
+                  <TextField name="awardeeFirstName" label="Awardee First Name" />
+                  <TextField name="awardeeLastName" label="Awardee Last Name" />
+                </div>
+                <div>
+                  <button
+                    name="intent"
+                    value="fundingLookupNih"
+                    className="px-4 py-1 text-white bg-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed rounded"
+                  >
+                    Search (nih reporter)
+                  </button>
+                </div>
+                {fetcher.data?.result?.funding && (
+                  <details className="text-green-600">
+                    <summary className="text-sm">Funding Results</summary>
+                    <pre className="text-sm">
+                      {JSON.stringify(fetcher.data?.result?.funding, null, 2)}
+                    </pre>
+                  </details>
+                )}
               </div>
-            </div>
+            </fetcher.Form>
             <fetcher.Form className="space-y-3" method="post">
               <div className="flex flex-col items-start gap-3">
                 <button
