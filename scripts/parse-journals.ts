@@ -6,10 +6,8 @@ interface JournalEntry {
   JrId: number;
   JournalTitle: string;
   MedAbbr: string;
-  ISSN: {
-    type: string;
-    value: string;
-  }[];
+  ISSNPrint: string;
+  ISSNOnline: string;
   IsoAbbr: string;
   NlmId: string;
 }
@@ -17,7 +15,7 @@ interface JournalEntry {
 // Function to parse a single journal entry block
 function parseEntry(entry: string): JournalEntry | null {
   const lines = entry.split('\n').filter((line) => line.trim() !== '');
-  const journal: any = { ISSN: [] };
+  const journal: any = {};
 
   for (const line of lines) {
     const [key, value] = line.split(/:\s(.+)/);
@@ -33,12 +31,10 @@ function parseEntry(entry: string): JournalEntry | null {
         journal.MedAbbr = value.trim();
         break;
       case 'ISSN (Print)':
-        journal.ISSN.push({ type: 'Print', value: value.trim() });
+        journal.ISSNPrint = value.trim();
         break;
       case 'ISSN (Online)':
-        if (value.trim()) {
-          journal.ISSN.push({ type: 'Online', value: value.trim() });
-        }
+        journal.ISSNOnline = value.trim();
         break;
       case 'IsoAbbr':
         journal.IsoAbbr = value.trim();

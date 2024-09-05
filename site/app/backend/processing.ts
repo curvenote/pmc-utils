@@ -58,6 +58,18 @@ export async function createDepositFile(jobId: string) {
   }
 }
 
+type NIHJournalEntry = {
+  ISSNPrint: string;
+  ISSNOnline: string;
+  JrId: number;
+  JournalTitle: string;
+  MedAbbr: string;
+  IsoAbbr: string;
+  NlmId: string;
+};
+
+type NIHJournalLookupResult = NIHJournalEntry & { score: number; id: number };
+
 export async function nihFuzzyJournalLookup(search: string) {
   console.log('Searching for:', search);
   try {
@@ -76,7 +88,7 @@ export async function nihFuzzyJournalLookup(search: string) {
     miniSearch.addAll(journals);
     const results = miniSearch.search(search);
 
-    const records = results
+    const records: NIHJournalLookupResult[] = results
       .map((result: any) => ({
         ...journals.find((journal: any) => journal.id === result.id),
         score: result.score,

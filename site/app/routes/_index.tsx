@@ -45,7 +45,7 @@ interface PMCJournalMeta {
   journalTitle: string | null;
   issn: string | null;
   issnType: string | null;
-  nlmId: string | null;
+  nlmTa: string | null;
 }
 
 async function actionJournalOpenAlex(formData: FormData) {
@@ -64,7 +64,7 @@ async function actionJournalOpenAlex(formData: FormData) {
       journalTitle: source.display_name,
       issn: source.issn_l ?? source.issn?.[0],
       issnType: null,
-      nlmId: null,
+      nlmTa: null,
     }));
 
     return { journals, total: data.meta.count, perPage: data.meta.per_page };
@@ -90,7 +90,7 @@ async function actionJournalCrossref(formData: FormData) {
       journalTitle: item.title,
       issn: item.ISSN?.[0] ?? null,
       issnType: item['issn-type'].find((i: any) => i.value === item.ISSN?.[0])?.type ?? null,
-      nlmId: null,
+      nlmTa: null,
     }));
 
     return {
@@ -107,11 +107,11 @@ async function actionJournalCrossref(formData: FormData) {
 async function actionJournalNIH(formData: FormData) {
   const journal = formData.get('journal-lookup') as string;
   const { journals, total, perPage } = await nihFuzzyJournalLookup(journal);
-  const mapped = journals.map((item: any) => ({
+  const mapped = journals.map((item) => ({
     journalTitle: item.JournalTitle,
-    issn: item.ISSN?.[0]?.value ?? null,
-    issnType: item.ISSN?.[0]?.type ?? null,
-    nlmId: item.NlmId,
+    issn: item.ISSNPrint ?? item.ISSNOnline ?? null,
+    issnType: item.ISSNPrint ?? item.ISSNOnline ?? null,
+    nlmTa: item.IsoAbbr ?? item.MedAbbr ?? null,
   }));
   return { journals: mapped, total, perPage };
 }
@@ -247,8 +247,8 @@ function JournalListing({
             <div className={classNames({ 'text-red-600': !journal.issnType })}>
               issnType: {journal.issnType ?? 'null'}
             </div>
-            <div className={classNames({ 'text-red-600': !journal.nlmId })}>
-              nlmId: {journal.nlmId ?? 'null'}
+            <div className={classNames({ 'text-red-600': !journal.nlmTa })}>
+              nlmTa: {journal.nlmTa ?? 'null'}
             </div>
           </div>
         ))}

@@ -35,11 +35,16 @@ function treeFromManifest(manifest: AAMDepositManifest) {
 
   const children = [
     e('manuscript-title', [t(manifest.metadata.title)]),
-    e('journal-meta', [e('issn', { issnType: 'print' }, [t(manifest.metadata.journal.issn)])]),
+    e('journal-meta', [
+      e('issn', { issnType: manifest.metadata.journal.issnType }, [
+        t(manifest.metadata.journal.issn),
+      ]),
+    ]),
     e('contacts', [
       e('person', {
         personType: 'reviewer',
         fname: reviewer.fname,
+        mname: reviewer.mname,
         lname: reviewer.lname,
         email: reviewer.email,
       }),
