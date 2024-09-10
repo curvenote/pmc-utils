@@ -29,7 +29,10 @@ async function actionCheckDoi(formData: FormData) {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function actionCreateJobManifest(formData: FormData) {
-  const result = await createJobManifest(manifest as AAMDepositManifest);
+  const result = await createJobManifest({
+    ...manifest,
+    taskId: Math.floor(Date.now() + Math.random() * 1e8).toString(16),
+  } as AAMDepositManifest);
   return result;
 }
 
