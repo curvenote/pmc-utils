@@ -34,15 +34,15 @@ function treeFromManifest(manifest: AAMDepositManifest) {
   });
 
   const children = [
-    e('manuscript-title', [t(manifest.metadata.title)]),
     e('journal-meta', [
-      e('issn', { issnType: manifest.metadata.journal.issnType }, [
+      e('issn', { 'issn-type': manifest.metadata.journal.issnType }, [
         t(manifest.metadata.journal.issn),
       ]),
     ]),
+    e('manuscript-title', [t(manifest.metadata.title)]),
     e('contacts', [
       e('person', {
-        personType: 'reviewer',
+        'person-type': 'reviewer',
         fname: reviewer.fname,
         mname: reviewer.mname,
         lname: reviewer.lname,
@@ -56,13 +56,15 @@ function treeFromManifest(manifest: AAMDepositManifest) {
     ]),
   ];
 
-  if (manifest.doi) {
-    children.push(
-      e('URL', { urlType: 'full-text' }, [t(doiUtils.buildUrl(manifest.doi) as string)]),
-    );
-  }
-
-  const body = e('manuscript-submit', { agency: manifest.agency, embargoMonths: 0 }, children);
+  const body = e(
+    'manuscript-submit',
+    {
+      agency: manifest.agency,
+      'embargo-months': 0,
+      doi: doiUtils.buildUrl(manifest.doi) as string,
+    },
+    children,
+  );
 
   return u('root', [
     u('instruction', { name: 'xml', value: 'version="1.0" encoding="utf-8"' }),
