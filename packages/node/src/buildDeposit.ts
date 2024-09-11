@@ -7,6 +7,7 @@ import { AAMDepositManifestSchema } from '@curvenote/pmc-web';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import { create as createTar } from 'tar';
+import { validateXml } from './validateXml.js';
 
 /*
 Manifest
@@ -99,6 +100,14 @@ export async function buildDeposit(
 
   // prepare the JSON metadtata object
   const xml = pmcXmlFromManifest(manifest);
+  try {
+    // validate the XML against the DTD
+    await validateXml(xml);
+  } catch (e) {
+    opts.log.error('Error validating XML');
+    opts.log.debug(e);
+    throw e;
+  }
 
   // 0 create the deposit folder
   const depositFolder = path.join(opts.output ?? 'deposits', `/pmc/${manifest.taskId}`);
