@@ -31,7 +31,7 @@ async function actionCheckDoi(formData: FormData) {
 async function actionCreateJobManifest(formData: FormData) {
   const result = await createJobManifest({
     ...manifest,
-    taskId: Math.floor(Date.now() + Math.random() * 1e8).toString(16),
+    taskId: Math.floor(Date.now() + 1e12).toString(16),
   } as AAMDepositManifest);
   return result;
 }
