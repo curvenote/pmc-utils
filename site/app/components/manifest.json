@@ -1,5 +1,4 @@
 {
-  "taskId": "task-1234",
   "agency": "hhmi",
   "files": [
     {
@@ -39,10 +38,8 @@
   "metadata": {
     "title": "My Research Article",
     "journal": {
-      "issn": "1234-567",
-      "issnType": "electronic",
-      "title": "Journal",
-      "shortTitle": "J."
+      "issn": "0094-6354",
+      "issnType": "print"
     },
     "authors": [
       {
@@ -52,6 +49,6 @@
         "contactType": "reviewer"
       }
     ],
-    "funding": [{ "funder": "hhmi" }, { "funder": "nih", "grantId": "q1w2e3r4" }]
+    "funding": [{ "funder": "hhmi" }, { "funder": "nih", "grantId": "5R33MH125126-04" }]
   }
 }

@@ -33,12 +33,18 @@ function treeFromManifest(manifest: AAMDepositManifest) {
     validatePMCFunder(funding.funder);
   });
 
-  const children = [
-    e('journal-meta', [
-      e('issn', { 'issn-type': manifest.metadata.journal.issnType }, [
-        t(manifest.metadata.journal.issn),
-      ]),
+  const journalMeta = e('journal-meta', [
+    e('issn', { 'issn-type': manifest.metadata.journal.issnType }, [
+      t(manifest.metadata.journal.issn),
     ]),
+  ]);
+
+  if (manifest.metadata.journal.title) {
+    journalMeta.children.push(e('journal-title', [t(manifest.metadata.journal.title)]));
+  }
+
+  const children = [
+    journalMeta,
     e('manuscript-title', [t(manifest.metadata.title)]),
     e('contacts', [
       e('person', {

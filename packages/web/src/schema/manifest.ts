@@ -14,8 +14,8 @@ const fileSchema = z.object({
 const journalSchema = z.object({
   issn: z.string().min(1),
   issnType: z.enum(['print', 'electronic']),
-  title: z.string().min(1),
-  shortTitle: z.string().min(1),
+  title: z.string().optional(),
+  shortTitle: z.string().optional(),
 });
 
 // Schema for the 'authors' array
