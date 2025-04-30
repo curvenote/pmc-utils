@@ -4,7 +4,7 @@ import path from 'path';
 import express from 'express';
 import fetch from 'node-fetch';
 import { create as createTar } from 'tar';
-import { Client } from 'basic-ftp';
+import Client from 'ssh2-sftp-client';
 import { preparePMCManifestText } from '@curvenote/pmc-node';
 import {
   AAMDepositManifestSchema,
@@ -45,13 +45,7 @@ export function createService() {
     try {
       const { attributes } = message;
 
-      const {
-        manifest: maybeManifest,
-        host,
-        port,
-        user,
-        password,
-      } = (attributes ?? {}) as Attributes;
+      const { manifest: maybeManifest } = (attributes ?? {}) as Attributes;
 
       const result = AAMDepositManifestSchema.safeParse(maybeManifest);
 
@@ -92,17 +86,17 @@ export function createService() {
         throw new Error('Error creating tar.gz file');
       }
       const client = new Client();
-      await client.access({
-        host: host ?? process.env.FTP_HOST,
-        port: +(port ?? process.env.FTP_PORT ?? 21),
-        user: user ?? process.env.FTP_USER,
-        password: password ?? process.env.FTP_PASSWORD,
+      await client.connect({
+        host: process.env.FTP_HOST,
+        username: process.env.FTP_USERNAME,
+        password: process.env.FTP_PASSWORD,
       });
       const targetDir = `upload/${hyphenatedFromDate(new Date())}`;
-      await client.ensureDir(targetDir);
-      await client.uploadFrom(tarFilePath, tarFileName); //`${targetDir}/${tarFileName}`);
+      await client.mkdir(targetDir);
+      await client.put(tarFilePath, `${targetDir}/${tarFileName}`);
+      await client.end();
       removeFolder(tmpFolder);
-      return res.sendStatus(204);
+      return res.sendStatus(201);
     } catch (err: any) {
       console.error(err);
       removeFolder(tmpFolder);

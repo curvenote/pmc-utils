@@ -1,3 +1,8 @@
+/**
+ * Test containerized ftp service
+ *
+ * Container must be running first: npm run dev
+ */
 async function post(url: string, data: any) {
   try {
     const response = await fetch(url, {

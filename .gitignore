@@ -38,3 +38,4 @@ deposits
 ftp
 
 cloudrun/index.js
+cloudrun/*.node

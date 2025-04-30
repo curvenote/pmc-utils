@@ -5,9 +5,10 @@ RUN npm update -g npm
 
 WORKDIR /usr/app
 
-ADD index.js index.js
-ADD package.json package.json
-ADD package-lock.json package-lock.json
+ADD index.js ./
+ADD *.node ./
+ADD package.json ./
+ADD package-lock.json ./
 RUN npm install
 
 CMD ["npm", "run", "start"]
