@@ -25,12 +25,11 @@ async function post(url: string, data: any) {
   }
 }
 
-const postUrl = 'http://localhost:8080/';
+// const postUrl = 'http://localhost:8080/';
+const postUrl = 'https://pmc-ftp-service-879616685817.us-central1.run.app';
 const postData = {
   message: {
     attributes: {
-      user: 'curvenote',
-      password: 'curvenote',
       manifest: {
         agency: 'hhmi',
         files: [
