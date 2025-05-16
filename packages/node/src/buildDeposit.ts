@@ -36,7 +36,7 @@ bulksub_meta_xml    bulk_meta.xml
 manuscript  manuscript.pdf
 supplement  Supp1 supp.docx
 */
-function preparePMCManifestText(manifest: AAMDepositManifest) {
+export function preparePMCManifestText(manifest: AAMDepositManifest) {
   const text = ['bulksub_meta_xml\tbulk_meta.xml\n'];
 
   const manuscripts = manifest.files.filter((f) => f.type === 'manuscript');

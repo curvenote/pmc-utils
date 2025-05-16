@@ -1,2 +1,2 @@
-export { buildDeposit } from './buildDeposit.js';
+export { buildDeposit, preparePMCManifestText } from './buildDeposit.js';
 export * from './types.js';

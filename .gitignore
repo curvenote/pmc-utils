@@ -35,3 +35,7 @@ _build
 
 src/version.ts
 deposits
+ftp
+
+cloudrun/index.js
+cloudrun/*.node
