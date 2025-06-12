@@ -1,6 +1,6 @@
 {
-  "name": "@curvenote/pmc-node",
-  "version": "0.0.1",
+  "name": "pmc-node-utils",
+  "version": "0.1.0",
   "description": "Node Utilities for PMC submissions including a CLI",
   "sideEffects": false,
   "type": "module",
@@ -50,7 +50,7 @@
     "url": "https://github.com/curvenote/pmc-utils/issues"
   },
   "dependencies": {
-    "@curvenote/pmc-web": "*",
+    "pmc-utils": "*",
     "@types/xast": "^2.0.4",
     "adm-zip": "^0.5.10",
     "chalk": "^5.3.0",

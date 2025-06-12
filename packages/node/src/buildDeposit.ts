@@ -1,9 +1,5 @@
-import {
-  pmcXmlFromManifest,
-  type AAMDepositManifest,
-  type IClientOptions,
-} from '@curvenote/pmc-web';
-import { AAMDepositManifestSchema } from '@curvenote/pmc-web';
+import { pmcXmlFromManifest, type AAMDepositManifest, type IClientOptions } from 'pmc-utils';
+import { AAMDepositManifestSchema } from 'pmc-utils';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import { create as createTar } from 'tar';

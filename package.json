@@ -47,6 +47,5 @@
   },
   "packageManager": "npm@10.8.2",
   "dependencies": {
-    "@curvenote/pmc-client": "^0.0.1"
   }
 }

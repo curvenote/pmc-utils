@@ -1,5 +1,5 @@
 ---
-'@curvenote/pmc-node': patch
+'pmc-node-utils': patch
 ---
 
 Export PMC manifest text function
