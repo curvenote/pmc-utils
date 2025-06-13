@@ -3,7 +3,7 @@ import type { MetaFunction } from '@remix-run/node';
 import { json, useFetcher } from '@remix-run/react';
 import { withContext } from '../backend/context';
 import { createDepositFile, createJobManifest, nihFuzzyJournalLookup } from '../backend';
-import { AAMDepositManifest, lookupMetadata } from '@curvenote/pmc-web';
+import { AAMDepositManifest, lookupMetadata } from 'pmc-utils';
 import { useEffect, useState } from 'react';
 import manifest from '../components/manifest.json';
 import classNames from 'classnames';

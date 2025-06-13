@@ -3,7 +3,7 @@ import path from 'node:path';
 import fs from 'node:fs/promises';
 import { fileURLToPath } from 'url';
 import { exec } from 'node:child_process';
-import { AAMDepositManifest } from '@curvenote/pmc-web';
+import { AAMDepositManifest } from 'pmc-utils';
 import MiniSearch from 'minisearch';
 
 const __filename = fileURLToPath(import.meta.url);

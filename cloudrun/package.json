@@ -1,5 +1,5 @@
 {
-  "name": "@curvenote/pmc-ftp-service",
+  "name": "@curvenote/pmc-ftp-service-cloudrun",
   "description": "Bundled PMC FTP service",
   "version": "0.0.1",
   "private": true,
@@ -10,7 +10,7 @@
   },
   "scripts": {
     "start": "node index.js",
-    "build:service": "cd ../packages/ftp-service && npm run build && cd ../../cloudrun",
+    "build:service": "cd ../packages/ftp-service && npm run build && cp dist/* ../../cloudrun && cd ../../cloudrun",
     "build": "npm run build:service && ./build.sh",
     "deploy": "./deploy.sh",
     "build:local": "npm run build:service && docker build --tag pmc-ftp .",

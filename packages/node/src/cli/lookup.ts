@@ -1,7 +1,7 @@
 import { Command } from 'commander';
 import type { ISession } from 'myst-cli-utils';
 import { clirun, getSession } from 'myst-cli-utils';
-import { lookupMetadata } from '@curvenote/pmc-web';
+import { lookupMetadata } from 'pmc-utils';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 

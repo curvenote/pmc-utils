@@ -5,12 +5,8 @@ import express from 'express';
 import fetch from 'node-fetch';
 import { create as createTar } from 'tar';
 import Client from 'ssh2-sftp-client';
-import { preparePMCManifestText } from '@curvenote/pmc-node';
-import {
-  AAMDepositManifestSchema,
-  pmcXmlFromManifest,
-  type AAMDepositManifest,
-} from '@curvenote/pmc-web';
+import { preparePMCManifestText } from 'pmc-node-utils';
+import { AAMDepositManifestSchema, pmcXmlFromManifest, type AAMDepositManifest } from 'pmc-utils';
 import {
   hyphenatedFromDate,
   removeFolder,
