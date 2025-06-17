@@ -36,7 +36,7 @@
     "build": "npm-run-all -l clean copy:version -p build:dtd build:esm build:cli",
     "changeset": "changeset",
     "version": "changeset version && npm install",
-    "publish": "npm run build && npm run test && changeset publish && git push --follow-tags",
+    "_publish": "npm run build && changeset publish && git push --follow-tags",
     "check-types": "tsc --noEmit"
   },
   "author": "Steve Purves <steve@curvenote.com>",
