@@ -1,7 +1,7 @@
 {
-  "name": "@curvenote/pmc-web",
-  "version": "0.0.1",
-  "description": "A client library for PMC utilities that can be used in browser or node,",
+  "name": "pmc-utils",
+  "version": "0.1.0",
+  "description": "A utility library for building and validating PMC Bulk Deposit Manifests",
   "sideEffects": false,
   "type": "module",
   "exports": "./dist/index.js",
@@ -27,7 +27,6 @@
     "dev": "npm-run-all -l copy:version -p dev:esm",
     "changeset": "changeset",
     "version": "changeset version && npm install",
-    "publish": "npm run build && npm run test && changeset publish && git push --follow-tags",
     "check-types": "tsc --noEmit"
   },
   "author": "Steve Purves <steve@curvenote.com>",

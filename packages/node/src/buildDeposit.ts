@@ -1,9 +1,5 @@
-import {
-  pmcXmlFromManifest,
-  type AAMDepositManifest,
-  type IClientOptions,
-} from '@curvenote/pmc-web';
-import { AAMDepositManifestSchema } from '@curvenote/pmc-web';
+import { pmcXmlFromManifest, type AAMDepositManifest, type IClientOptions } from 'pmc-utils';
+import { AAMDepositManifestSchema } from 'pmc-utils';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import { create as createTar } from 'tar';
@@ -36,7 +32,7 @@ bulksub_meta_xml    bulk_meta.xml
 manuscript  manuscript.pdf
 supplement  Supp1 supp.docx
 */
-function preparePMCManifestText(manifest: AAMDepositManifest) {
+export function preparePMCManifestText(manifest: AAMDepositManifest) {
   const text = ['bulksub_meta_xml\tbulk_meta.xml\n'];
 
   const manuscripts = manifest.files.filter((f) => f.type === 'manuscript');
