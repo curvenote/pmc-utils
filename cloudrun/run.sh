@@ -7,4 +7,4 @@ docker run \
   -e FTP_HOST=34.82.165.84 \
   -e FTP_USERNAME=curvenote \
   -e FTP_PASSWORD=curvenote \
-  pmc-ftp
+  pmc-ftp-local
