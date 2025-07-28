@@ -68,7 +68,9 @@ export function createService() {
               throw new Error(`Unable to download file: ${file.path}`);
             }
             console.log('Downloading file - have response', file.filename);
-            await fs.writeFile(path.join(tmpFolder, file.filename), await fileResp.text());
+            // Use arrayBuffer() to handle both text and binary files properly
+            const buffer = Buffer.from(await fileResp.arrayBuffer());
+            await fs.writeFile(path.join(tmpFolder, file.filename), buffer);
             console.log('Downloaded file - written', file.filename);
           }),
         ),
