@@ -21,7 +21,7 @@
   "scripts": {
     "copy:version": "echo \"const version = '\"$npm_package_version\"';\nexport default version;\" > src/version.ts",
     "clean": "rimraf dist",
-    "unlink": "npm uninstall -g pmc-utils;",
+    "unlink": "npm uninstall -g pmc;",
     "link": "npm run unlink; npm link;",
     "dev:cli": "npm run link && esbuild src/cli/index.ts --bundle --outfile=dist/pmc.cjs --platform=node --external:fsevents --watch",
     "dev:esm": "tsc --project ./tsconfig.json --outDir dist --watch",
@@ -81,6 +81,7 @@
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^20.11.13",
     "@types/tar": "^6.1.13",
-    "@types/which": "^3.0.3"
+    "@types/which": "^3.0.3",
+    "vitest": "^1.2.2"
   }
 }

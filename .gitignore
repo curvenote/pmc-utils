@@ -39,3 +39,5 @@ ftp
 
 cloudrun/index.js
 cloudrun/*.node
+# Environment files
+.env

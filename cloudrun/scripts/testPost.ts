@@ -56,6 +56,7 @@ const postData = {
           journal: {
             issn: '0094-6354',
             issnType: 'print',
+            title: 'Journal of Test Studies',
           },
           authors: [
             {
@@ -71,7 +72,7 @@ const postData = {
             },
             {
               funder: 'nih',
-              grantId: '5R33MH125126-04',
+              id: '5R33MH125126-04',
             },
           ],
         },

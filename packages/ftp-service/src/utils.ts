@@ -3,11 +3,14 @@ import type { Response } from 'express';
 
 export function respondBadRequest(res: Response, msg: string) {
   console.error(`error: ${msg}`);
-  return res.status(204).send(`Bad Request: ${msg}`);
+  return res.status(400).send(msg);
 }
 
-export function respondUnableToProcess(res: Response, id?: string) {
-  return res.status(204).send(`Unable to process submission over FTP${id ? `: ${id}` : ''}`);
+export function respondUnableToProcess(res: Response, id?: string, err?: any) {
+  console.error('Unable to process submission over FTP', err);
+  const message =
+    err?.statusText || err?.message || String(err) || 'Unable to process submission over FTP';
+  return res.status(422).send(message);
 }
 
 export function removeFolder(folder?: string) {

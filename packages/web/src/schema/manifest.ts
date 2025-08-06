@@ -14,7 +14,7 @@ const fileSchema = z.object({
 const journalSchema = z.object({
   issn: z.string().min(1),
   issnType: z.enum(['print', 'electronic']),
-  title: z.string().optional(),
+  title: z.string().min(1),
   shortTitle: z.string().optional(),
 });
 
