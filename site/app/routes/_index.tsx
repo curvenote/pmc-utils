@@ -221,7 +221,6 @@ export const action = withContext(async (ctx) => {
 function Select({
   name,
   value,
-  onChange,
 }: {
   name: string;
   value: string;
@@ -281,7 +280,7 @@ function formatXml(xml: string, tab?: string) {
   xml.split(/>\s*</).forEach(function (node) {
     if (node.match(/^\/\w/)) indent = indent.substring(tab.length); // decrease indent by one 'tab'
     formatted += indent + '<' + node + '>\r\n';
-    if (node.match(/^<?\w[^>]*[^\/]$/)) indent += tab; // increase indent
+    if (node.match(/^<?\w[^>]*[^/]$/)) indent += tab; // increase indent
   });
   return formatted.substring(1, formatted.length - 3);
 }
