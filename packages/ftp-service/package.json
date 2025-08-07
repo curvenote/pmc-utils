@@ -17,8 +17,8 @@
     "dev": "npm run clean; npm run build; NODE_ENV=development concurrently \"npm run build:watch\" \"nodemon\"",
     "lint": "eslint \"src/**/*.ts\" -c ../../.eslintrc.js",
     "lint:format": "npx prettier --check \"src/**/*.ts\" \"tests/**/*.ts\"",
-    "test": "jest --config=jest.config.js --env=node --detectOpenHandles --forceExit --verbose",
-    "test:watch": "jest --config=jest.config.js --watchAll --env=node --detectOpenHandles",
+    "test": "vitest run",
+    "test:watch": "vitest watch",
     "test:launch": "ts-node bin/launch.ts",
     "test:publish": "ts-node bin/publish.ts"
   },
@@ -40,7 +40,7 @@
     "esbuild": "^0.15.10",
     "eslint": "^8.21.0",
     "typescript": "^5.1.3",
-    "vitest": "^0.32.0"
+    "vitest": "^1.2.2"
   },
   "nodemonConfig": {
     "signal": "SIGHUP",

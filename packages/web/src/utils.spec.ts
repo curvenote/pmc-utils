@@ -42,10 +42,10 @@ describe('formatZodErrorForStatus', () => {
 
     const result = AAMDepositManifestSchema.safeParse(invalidManifest);
     expect(result.success).toBe(false);
-    
+
     if (!result.success) {
       const statusMessage = formatZodErrorForStatus(result.error);
-      expect(statusMessage).toBe('metadata → journal → title is required');
+      expect(statusMessage).toBe('metadata - journal - title is required');
     }
   });
 
@@ -87,10 +87,10 @@ describe('formatZodErrorForStatus', () => {
 
     const result = AAMDepositManifestSchema.safeParse(invalidManifest);
     expect(result.success).toBe(false);
-    
+
     if (!result.success) {
       const statusMessage = formatZodErrorForStatus(result.error);
-      expect(statusMessage).toBe('metadata → journal → title cannot be empty');
+      expect(statusMessage).toBe('metadata - journal - title cannot be empty');
     }
   });
 
@@ -132,10 +132,10 @@ describe('formatZodErrorForStatus', () => {
 
     const result = AAMDepositManifestSchema.safeParse(invalidManifest);
     expect(result.success).toBe(false);
-    
+
     if (!result.success) {
       const statusMessage = formatZodErrorForStatus(result.error);
-      expect(statusMessage).toBe('metadata → authors → item 1 → email must be a valid email address');
+      expect(statusMessage).toBe('metadata - authors - item 1 - email has an invalid value');
     }
   });
 
@@ -183,10 +183,10 @@ describe('formatZodErrorForStatus', () => {
 
     const result = AAMDepositManifestSchema.safeParse(invalidManifest);
     expect(result.success).toBe(false);
-    
+
     if (!result.success) {
       const statusMessage = formatZodErrorForStatus(result.error);
-      expect(statusMessage).toBe('metadata → authors → item 2 → email must be a valid email address');
+      expect(statusMessage).toBe('metadata - authors - item 2 - email has an invalid value');
     }
   });
 
@@ -195,4 +195,4 @@ describe('formatZodErrorForStatus', () => {
     const statusMessage = formatZodErrorForStatus(emptyError);
     expect(statusMessage).toBe('Validation failed');
   });
-}); 
+});
