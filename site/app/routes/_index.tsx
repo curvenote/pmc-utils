@@ -51,6 +51,18 @@ interface PMCJournalMeta {
   nlmTa: string | null;
 }
 
+interface GrantsResponse {
+  projects?: Array<{
+    ProjectNum: string;
+    ProjectTitle: string;
+    ProjectId: string;
+    Organization: string;
+  }>;
+  total?: number;
+  offset?: number;
+  limit?: number;
+}
+
 async function actionJournalOpenAlex(formData: FormData) {
   const journal = formData.get('journal-lookup') as string;
   console.log('Looking up journal', journal);
@@ -155,12 +167,12 @@ async function actionGrantsNIH(formData: FormData) {
     });
 
     if (!resp.ok) {
-      throw new Error(`Failed to lookup funding ${resp.status} ${resp.statusText}`);
+      throw new Error(`Failed to lookup grants ${resp.status} ${resp.statusText}`);
     }
 
     const data = await resp.json();
 
-    console.log('Funding data', data);
+    console.log('Grants data', data);
 
     return { grants: data };
   } catch (e: any) {
@@ -325,7 +337,7 @@ export default function Index() {
       journals?: PMCJournalMeta[];
       total?: number;
       perPage?: number;
-      grants?: any;
+      grants?: GrantsResponse;
     };
   }>();
   const [intents, setIntents] = useState<string[]>([]);
