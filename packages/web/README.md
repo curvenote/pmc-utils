@@ -53,7 +53,7 @@ const manifest = {
           grants: [
       {
         funder: 'NIH',
-        grantId: 'R01-123456'
+        id: 'R01-123456'
       }
     ]
   }
