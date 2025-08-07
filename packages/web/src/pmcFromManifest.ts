@@ -29,8 +29,8 @@ function treeFromManifest(manifest: AAMDepositManifest) {
     throw new Error('At least one author must be a reviewer');
   }
 
-  manifest.metadata.funding.forEach((funding) => {
-    validatePMCFunder(funding.funder);
+  manifest.metadata.grants.forEach((grant) => {
+    validatePMCFunder(grant.funder);
   });
 
   const journalMeta = e('journal-meta', [
@@ -53,8 +53,8 @@ function treeFromManifest(manifest: AAMDepositManifest) {
       }),
     ]),
     e('grants', [
-      ...manifest.metadata.funding.map((funding) => {
-        return e('grant', { id: funding.grantId, funder: funding.funder });
+      ...manifest.metadata.grants.map((grant) => {
+        return e('grant', { id: grant.id, funder: grant.funder });
       }),
     ]),
   ];

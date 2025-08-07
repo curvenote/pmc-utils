@@ -27,10 +27,10 @@ const authorSchema = z.object({
   contactType: z.enum(['reviewer', 'author']),
 });
 
-// Schema for the 'funding' array
-const fundingSchema = z.object({
+// Schema for the 'grants' array
+const grantSchema = z.object({
   funder: z.string().min(1),
-  grantId: z.string().optional(),
+  id: z.string().optional(),
 });
 
 // Schema for the 'metadata' object
@@ -38,7 +38,7 @@ const metadataSchema = z.object({
   title: z.string().min(1),
   journal: journalSchema,
   authors: z.array(authorSchema).min(1),
-  funding: z.array(fundingSchema),
+  grants: z.array(grantSchema),
 });
 
 // Main manifest schema

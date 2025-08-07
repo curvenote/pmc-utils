@@ -119,11 +119,11 @@ async function actionJournalNIH(formData: FormData) {
   return { journals: mapped, total, perPage };
 }
 
-async function actionFundingNIH(formData: FormData) {
+async function actionGrantsNIH(formData: FormData) {
   const awardId = formData.get('awardId') as string;
   const awardeeFirstName = formData.get('awardeeFirstName') as string;
   const awardeeLastName = formData.get('awardeeLastName') as string;
-  console.log('Looking up funding', awardId, awardeeFirstName, awardeeLastName);
+  console.log('Looking up grants', awardId, awardeeFirstName, awardeeLastName);
 
   try {
     const payload = {
@@ -162,10 +162,10 @@ async function actionFundingNIH(formData: FormData) {
 
     console.log('Funding data', data);
 
-    return { funding: data };
+    return { grants: data };
   } catch (e: any) {
     console.error(
-      'Error looking up funding',
+      'Error looking up grants',
       awardId,
       awardeeFirstName,
       awardeeLastName,
@@ -198,8 +198,8 @@ export const action = withContext(async (ctx) => {
     case 'journal-lookup-nih': {
       return json({ intent, result: await actionJournalNIH(formData) });
     }
-    case 'fundingLookupNih': {
-      return json({ intent, result: await actionFundingNIH(formData) });
+    case 'grantsLookupNih': {
+      return json({ intent, result: await actionGrantsNIH(formData) });
     }
   }
 
@@ -325,7 +325,7 @@ export default function Index() {
       journals?: PMCJournalMeta[];
       total?: number;
       perPage?: number;
-      funding?: any;
+      grants?: any;
     };
   }>();
   const [intents, setIntents] = useState<string[]>([]);
@@ -450,7 +450,7 @@ export default function Index() {
             </fetcher.Form>
             <fetcher.Form className="space-y-3" method="post">
               <div className="px-2 py-4 border rounded border-gray-300 relative w-full flex flex-col gap-2">
-                <div className="text-xs absolute -top-2 left-2 bg-white">Funding Search</div>
+                <div className="text-xs absolute -top-2 left-2 bg-white">Grants Search</div>
                 <div className="flex gap-3">
                   <TextField name="awardId" label="Grant Id / Project Number" />
                   <TextField name="awardeeFirstName" label="Awardee First Name" />
@@ -459,17 +459,17 @@ export default function Index() {
                 <div>
                   <button
                     name="intent"
-                    value="fundingLookupNih"
+                    value="grantsLookupNih"
                     className="px-4 py-1 text-white bg-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed rounded"
                   >
                     Search (nih reporter)
                   </button>
                 </div>
-                {fetcher.data?.result?.funding && (
+                {fetcher.data?.result?.grants && (
                   <details className="text-green-600">
-                    <summary className="text-sm">Funding Results</summary>
+                    <summary className="text-sm">Grants Results</summary>
                     <pre className="text-sm">
-                      {JSON.stringify(fetcher.data?.result?.funding, null, 2)}
+                      {JSON.stringify(fetcher.data?.result?.grants, null, 2)}
                     </pre>
                   </details>
                 )}

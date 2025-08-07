@@ -35,10 +35,10 @@ describe('PMC Deposit Building', () => {
           contactType: 'reviewer',
         },
       ],
-      funding: [
+      grants: [
         {
           funder: 'nih',
-          grantId: 'R01-TEST123',
+          id: 'R01-TEST123',
         },
       ],
     },
