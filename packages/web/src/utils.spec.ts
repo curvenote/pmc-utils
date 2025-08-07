@@ -68,7 +68,7 @@ describe('formatZodErrorForStatus', () => {
             contactType: 'reviewer',
           },
         ],
-        funding: [
+        grants: [
           {
             funder: 'nih',
           },
@@ -113,7 +113,7 @@ describe('formatZodErrorForStatus', () => {
             contactType: 'reviewer',
           },
         ],
-        funding: [
+        grants: [
           {
             funder: 'nih',
           },
@@ -164,7 +164,7 @@ describe('formatZodErrorForStatus', () => {
             contactType: 'author',
           },
         ],
-        funding: [
+        grants: [
           {
             funder: 'nih',
           },

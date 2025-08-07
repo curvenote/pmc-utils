@@ -66,7 +66,7 @@ const postData = {
               contactType: 'reviewer',
             },
           ],
-          funding: [
+          grants: [
             {
               funder: 'hhmi',
             },

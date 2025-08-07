@@ -49,6 +49,6 @@
         "contactType": "reviewer"
       }
     ],
-    "funding": [{ "funder": "hhmi" }, { "funder": "nih", "grantId": "5R33MH125126-04" }]
+    "grants": [{ "funder": "hhmi" }, { "funder": "nih", "id": "5R33MH125126-04" }]
   }
 }

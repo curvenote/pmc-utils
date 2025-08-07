@@ -32,14 +32,14 @@ describe('PMC Manifest Schema and XML Generation', () => {
           contactType: 'author',
         },
       ],
-      funding: [
+      grants: [
         {
           funder: 'nih',
-          grantId: 'R01-123456', // Optional
+          id: 'R01-123456', // Optional
         },
         {
           funder: 'hhmi',
-          // No grantId - should be fine since it's optional
+          // No id - should be fine since it's optional
         },
       ],
     },
@@ -81,7 +81,7 @@ describe('PMC Manifest Schema and XML Generation', () => {
           contactType: 'reviewer',
         },
       ],
-      funding: [
+      grants: [
         {
           funder: 'nasa',
         },
@@ -163,7 +163,7 @@ describe('PMC Manifest Schema and XML Generation', () => {
             title: 'Test Journal',
           },
           authors: [],
-          funding: [],
+          grants: [],
         },
         files: [],
       };
@@ -253,7 +253,7 @@ describe('PMC Manifest Schema and XML Generation', () => {
         ...validManifest,
         metadata: {
           ...validManifest.metadata,
-          funding: [
+          grants: [
             {
               funder: 'invalid-funder', // Not in PMC approved list
             },

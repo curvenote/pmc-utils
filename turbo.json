@@ -19,7 +19,14 @@
       "outputs": ["dist/**"]
     },
     "test": {
+      "dependsOn": ["^build"],
       "persistent": true,
+      "cache": false
+    },
+    "lint": {
+      "cache": false
+    },
+    "lint:format": {
       "cache": false
     }
   }

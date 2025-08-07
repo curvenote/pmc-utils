@@ -51,7 +51,7 @@ const manifest = {
       issnType: 'electronic',
       title: 'Example Journal'
     },
-    funding: [
+          grants: [
       {
         funder: 'NIH',
         grantId: 'R01-123456'
