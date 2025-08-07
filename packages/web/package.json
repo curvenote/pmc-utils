@@ -15,16 +15,16 @@
     "access": "public"
   },
   "scripts": {
-    "copy:version": "echo \"const version = '\"$npm_package_version\"';\nexport default version;\" > src/version.ts",
+
     "clean": "rimraf dist",
-    "test": "npm run copy:version && vitest run",
-    "test:watch": "npm run copy:version && vitest watch",
+    "test": "vitest run",
+    "test:watch": "vitest watch",
     "lint": "eslint \"src/**/*.ts*\" -c ./.eslintrc.cjs",
     "lint:format": "prettier --check \"src/**/*.{ts,tsx,md}\"",
     "build:esm": "tsc --project ./tsconfig.json --outDir dist",
-    "build": "npm-run-all -l clean copy:version -p build:esm",
+    "build": "npm-run-all -l clean -p build:esm",
     "dev:esm": "tsc --project ./tsconfig.json --outDir dist --watch",
-    "dev": "npm-run-all -l copy:version -p dev:esm",
+    "dev": "npm-run-all -l -p dev:esm",
     "changeset": "changeset",
     "version": "changeset version && npm install",
     "check-types": "tsc --noEmit"
