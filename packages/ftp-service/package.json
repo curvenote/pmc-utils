@@ -1,6 +1,6 @@
 {
   "name": "pmc-ftp-service",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Nodejs server for the PMC FTP submit service",
   "type": "module",
   "exports": "./dist/index.js",
@@ -23,8 +23,8 @@
     "test:publish": "ts-node bin/publish.ts"
   },
   "dependencies": {
-    "pmc-node-utils": "^0.2.0",
-    "pmc-utils": "^0.2.0",
+    "pmc-node-utils": "^0.3.0",
+    "pmc-utils": "^0.3.0",
     "express": "^4.18.1",
     "node-fetch": "^3.3.2",
     "p-limit": "^6.2.0",

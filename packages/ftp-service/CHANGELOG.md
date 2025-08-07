@@ -1,5 +1,19 @@
 # pmc-ftp-service
 
+## 0.3.0
+
+### Minor Changes
+
+- [#12](https://github.com/curvenote/pmc-utils/pull/12) [`dba0d2050326eca9e68cc905aec127f9f1289079`](https://github.com/curvenote/pmc-utils/commit/dba0d2050326eca9e68cc905aec127f9f1289079) Thanks [@stevejpurves](https://github.com/stevejpurves)! - Journal title is now a required field in the AMM Manifest
+
+### Patch Changes
+
+- [#11](https://github.com/curvenote/pmc-utils/pull/11) [`69e196862a981205375b5ed5f4fa5619bec25b05`](https://github.com/curvenote/pmc-utils/commit/69e196862a981205375b5ed5f4fa5619bec25b05) Thanks [@stevejpurves](https://github.com/stevejpurves)! - Fix file encoading issue and stream file downloads for large file support.
+
+- Updated dependencies [[`dba0d2050326eca9e68cc905aec127f9f1289079`](https://github.com/curvenote/pmc-utils/commit/dba0d2050326eca9e68cc905aec127f9f1289079), [`5e2005b62c2fe8d837376e6128057d6d148ca347`](https://github.com/curvenote/pmc-utils/commit/5e2005b62c2fe8d837376e6128057d6d148ca347)]:
+  - pmc-node-utils@0.3.0
+  - pmc-utils@0.3.0
+
 ## 0.2.0
 
 ### Minor Changes
