@@ -113,7 +113,7 @@ async function actionJournalNIH(formData: FormData) {
   const mapped = journals.map((item) => ({
     journalTitle: item.JournalTitle,
     issn: item.ISSNPrint ?? item.ISSNOnline ?? null,
-    issnType: item.ISSNPrint ?? item.ISSNOnline ?? null,
+    issnType: item.ISSNPrint ? 'print' : item.ISSNOnline ? 'online' : null,
     nlmTa: item.IsoAbbr ?? item.MedAbbr ?? null,
   }));
   return { journals: mapped, total, perPage };

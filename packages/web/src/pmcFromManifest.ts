@@ -37,11 +37,8 @@ function treeFromManifest(manifest: AAMDepositManifest) {
     e('issn', { 'issn-type': manifest.metadata.journal.issnType }, [
       t(manifest.metadata.journal.issn),
     ]),
+    e('journal-title', [t(manifest.metadata.journal.title)]),
   ]);
-
-  if (manifest.metadata.journal.title) {
-    journalMeta.children.push(e('journal-title', [t(manifest.metadata.journal.title)]));
-  }
 
   const children = [
     journalMeta,

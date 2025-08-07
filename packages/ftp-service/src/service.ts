@@ -24,7 +24,12 @@ import { create as createTar } from 'tar';
 import Client from 'ssh2-sftp-client';
 import pLimit from 'p-limit';
 import { preparePMCManifestText } from 'pmc-node-utils';
-import { AAMDepositManifestSchema, pmcXmlFromManifest, type AAMDepositManifest } from 'pmc-utils';
+import {
+  AAMDepositManifestSchema,
+  pmcXmlFromManifest,
+  formatZodErrorForStatus,
+  type AAMDepositManifest,
+} from 'pmc-utils';
 import {
   hyphenatedFromDate,
   removeFolder,
@@ -70,27 +75,32 @@ export function createService() {
    * 7. Cleanup temporary files
    */
   app.post('/', async (req, res) => {
+    console.log('Received request', req.body);
     if (!req.body) return respondBadRequest(res, 'no message received');
     const { body } = req;
 
     const { message } = body;
+    console.log('Message', message);
     if (!message) return respondBadRequest(res, 'invalid message format');
 
     // Create temporary folder for processing files
+    console.log('Creating temporary folder');
     const tmpFolder = await fs.mkdtemp(path.join(os.tmpdir(), 'ftp'));
+    console.log('Temporary folder created', tmpFolder);
     let id: string | undefined;
 
     try {
       const { attributes } = message;
-      console.log('Received message', attributes);
+      console.log('Received message', JSON.stringify(attributes, null, 2));
 
       // Extract and validate the manifest data
       const { manifest: maybeManifest } = (attributes ?? {}) as Attributes;
       const result = AAMDepositManifestSchema.safeParse(maybeManifest);
       console.log('Parsed manifest', result);
 
-      if (result.error) {
-        throw new Error(`Invalid manifest: ${result.error.message}`);
+      if (!result.success) {
+        const errorMessage = formatZodErrorForStatus(result.error);
+        throw new Error(`Invalid manifest: ${errorMessage}`);
       }
 
       const manifest: AAMDepositManifest = result.data;
@@ -279,7 +289,7 @@ export function createService() {
       console.error('Error processing deposit:', err);
       // Ensure cleanup even on error
       removeFolder(tmpFolder);
-      return respondUnableToProcess(res, id);
+      return respondUnableToProcess(res, id, err);
     }
   });
 
