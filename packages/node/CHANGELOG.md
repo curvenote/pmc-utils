@@ -1,5 +1,14 @@
 # pmc-node-utils
 
+## 0.3.1
+
+### Patch Changes
+
+- [`46958c8bb1d5c440d6db03d75887d33e84d83468`](https://github.com/curvenote/pmc-utils/commit/46958c8bb1d5c440d6db03d75887d33e84d83468) Thanks [@stevejpurves](https://github.com/stevejpurves)! - Updated readme examples
+
+- Updated dependencies [[`46958c8bb1d5c440d6db03d75887d33e84d83468`](https://github.com/curvenote/pmc-utils/commit/46958c8bb1d5c440d6db03d75887d33e84d83468)]:
+  - pmc-utils@0.3.1
+
 ## 0.3.0
 
 ### Minor Changes

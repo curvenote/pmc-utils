@@ -1,5 +1,13 @@
 # pmc-ftp-service
 
+## 0.3.1
+
+### Patch Changes
+
+- Updated dependencies [[`46958c8bb1d5c440d6db03d75887d33e84d83468`](https://github.com/curvenote/pmc-utils/commit/46958c8bb1d5c440d6db03d75887d33e84d83468)]:
+  - pmc-node-utils@0.3.1
+  - pmc-utils@0.3.1
+
 ## 0.3.0
 
 ### Minor Changes
