@@ -1,6 +1,6 @@
 module.exports = {
   root: true,
-  extends: ['curvenote'],
+  extends: ['../../.eslintrc.cjs'],
   overrides: [
     {
       files: ['**/*.spec.ts', '**/*.test.ts'],
