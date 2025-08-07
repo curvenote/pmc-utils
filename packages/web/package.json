@@ -1,6 +1,6 @@
 {
   "name": "pmc-utils",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "A utility library for building and validating PMC Bulk Deposit Manifests",
   "sideEffects": false,
   "type": "module",
@@ -15,7 +15,6 @@
     "access": "public"
   },
   "scripts": {
-
     "clean": "rimraf dist",
     "test": "vitest run",
     "test:watch": "vitest watch",
