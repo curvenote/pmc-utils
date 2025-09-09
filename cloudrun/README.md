@@ -75,7 +75,7 @@ Features:
 - Includes helpful setup instructions if `.env` is missing
 
 
-### `./deploy-env.sh`
+### `./deploy.sh`
 **Production Deployment with Environment Variables**
 
 Deploys to Google Cloud Run using environment variables:
@@ -102,10 +102,15 @@ Features:
 3. Test your changes locally
 4. Commit your code changes (`.env` is gitignored)
 
-### Build and Deploy
-1. Ensure `.env` is configured with production values
+### Build and Deploy For Staging
+1. Ensure `.env` is configured with staging values
 2. Build: `npm run build` - this will rebuild the service locally then run `./build.sh` to build the Docker container remotely
-2. Deploy: `npm run deploy` - this will run `./deploy.sh`
+3. Deploy: `npm run deploy` - this will run `./deploy.sh`
+
+### Build and Deploy For Production
+1. Ensure `.env` is configured with production values - notably the correct FTP host/username/password
+2. Build: `npm run build` - this will build the Docker container remotely in the production Google Cloud project
+3. Deploy: `npm run deploy` - this will deploy the container with production .env values
 
 ## Security Notes
 
