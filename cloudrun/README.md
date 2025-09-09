@@ -57,13 +57,31 @@ Features:
 - Runs container with proper environment configuration
 - Includes helpful setup instructions if `.env` is missing
 
+### `./build.sh`
+**Production Remote Build with Environment Variables**
+
+Builds Cloud Run Docker container remotely:
+
+```bash
+./build.sh
+```
+
+This does _not_ rebuild the latest FTP service code. If you need to rebuild the 
+service and build the Docker container remotely, use `npm run build`.
+
+Features:
+- Automatically loads environment variables from `.env`
+- Builds remote Docker image on google, based on commit hash
+- Includes helpful setup instructions if `.env` is missing
+
+
 ### `./deploy-env.sh`
 **Production Deployment with Environment Variables**
 
 Deploys to Google Cloud Run using environment variables:
 
 ```bash
-./deploy-env.sh
+./deploy.sh
 ```
 
 Features:
@@ -74,9 +92,7 @@ Features:
 
 ### Legacy Scripts
 
-- `./deploy.sh` - Original deployment script with hardcoded values
-- `./build.sh` - Docker image build script
-- `./run.sh` - Basic container run script
+- `./run.sh` - Basic container run script - used by `npm run dev`, which now does the same thing as `./local.sh`
 
 ## Workflow
 
@@ -86,9 +102,10 @@ Features:
 3. Test your changes locally
 4. Commit your code changes (`.env` is gitignored)
 
-### Deployment
+### Build and Deploy
 1. Ensure `.env` is configured with production values
-2. Deploy: `./deploy-env.sh`
+2. Build: `npm run build` - this will rebuild the service locally then run `./build.sh` to build the Docker container remotely
+2. Deploy: `npm run deploy` - this will run `./deploy.sh`
 
 ## Security Notes
 
