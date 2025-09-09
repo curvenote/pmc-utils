@@ -34,7 +34,7 @@
     "url": "https://github.com/curvenote/pmc-utils/issues"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.27.1",
+    "@changesets/cli": "^2.29.7",
     "@changesets/changelog-github": "^0.4.0",
     "@types/uuid": "^10.0.0",
     "concurrently": "^8.2.2",
