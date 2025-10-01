@@ -120,10 +120,9 @@ export class JournalClient {
       return pubsubError(
         `Bad response patching job: ${response.status} - ${response.statusText}`,
         res,
-        true,
       );
     } catch (error: any) {
-      return pubsubError(`Error patching job: ${error.message}`, res, true);
+      return pubsubError(`Error patching job: ${error.message}`, res);
     }
   }
 
@@ -151,10 +150,9 @@ export class JournalClient {
       return pubsubError(
         `Bad response putting status: ${response.status} - ${response.statusText}`,
         res,
-        true,
       );
     } catch (error: any) {
-      return pubsubError(`Error putting status: ${error.message}`, res, true);
+      return pubsubError(`Error putting status: ${error.message}`, res);
     }
   }
 }
