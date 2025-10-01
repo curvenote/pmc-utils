@@ -37,7 +37,6 @@ import { pubsubError, JournalClient } from './client.js';
  * Message attributes structure expected from the pub/sub system
  */
 type Attributes = {
-  manifest: string;
   userId: string;
   successState: string;
   failureState: string;
@@ -79,7 +78,8 @@ export function createService() {
     if (!body) return pubsubError('no request body', res);
     const { message } = body;
     if (!message) return pubsubError('no request message', res);
-    const { attributes } = message;
+    const { attributes, data } = message;
+    if (!data) return pubsubError('no message data', res);
     if (!attributes) return pubsubError('no message attributes', res);
 
     let id: string | undefined;
@@ -93,18 +93,10 @@ export function createService() {
       console.log('Received message', JSON.stringify(attributes, null, 2));
 
       // Extract and validate the manifest data
-      const {
-        manifest: maybeManifest,
-        jobUrl,
-        statusUrl,
-        handshake,
-        successState,
-        failureState,
-        userId,
-      } = (attributes ?? {}) as Attributes;
+      const { jobUrl, statusUrl, handshake, successState, failureState, userId } =
+        attributes as Attributes;
 
       // Validate all required attributes are present
-      if (!maybeManifest) return pubsubError('manifest is required', res);
       if (!jobUrl) return pubsubError('jobUrl is required', res);
       if (!statusUrl) return pubsubError('statusUrl is required', res);
       if (!handshake) return pubsubError('handshake is required', res);
@@ -115,7 +107,7 @@ export function createService() {
       // Initialize the journal client for status updates
       client = new JournalClient(jobUrl, statusUrl, handshake);
       await client.running(res, 'Starting FTP upload job...');
-      const result = AAMDepositManifestSchema.safeParse(JSON.parse(maybeManifest));
+      const result = AAMDepositManifestSchema.safeParse(JSON.parse(data));
       console.log('Parsed manifest', result);
 
       if (!result.success) {
