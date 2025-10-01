@@ -90,7 +90,8 @@ export function createService() {
     const tmpFolder = await fs.mkdtemp(path.join(os.tmpdir(), 'ftp'));
     console.log('Temporary folder created', tmpFolder);
     try {
-      console.log('Received message', JSON.stringify(attributes, null, 2));
+      console.log('Received data', JSON.stringify(data, null, 2));
+      console.log('Received attributes', JSON.stringify(attributes, null, 2));
 
       // Extract and validate the manifest data
       const { jobUrl, statusUrl, handshake, successState, failureState, userId } =
@@ -104,10 +105,13 @@ export function createService() {
       if (!failureState) return pubsubError('failureState is required', res);
       if (!userId) return pubsubError('userId is required', res);
 
+      const dataDecoded = Buffer.from(data, 'base64').toString('utf-8');
+      console.log('Decoded data', dataDecoded);
+
       // Initialize the journal client for status updates
       client = new JournalClient(jobUrl, statusUrl, handshake);
       await client.running(res, 'Starting FTP upload job...');
-      const result = AAMDepositManifestSchema.safeParse(JSON.parse(data.toString()));
+      const result = AAMDepositManifestSchema.safeParse(JSON.parse(dataDecoded));
       console.log('Parsed manifest', result);
 
       if (!result.success) {
