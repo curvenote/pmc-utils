@@ -8,10 +8,10 @@ gcloud run services add-iam-policy-binding pmc-ftp-service \
   --role=roles/run.invoker \
   --region us-central1
 
-# # Give it permission to publish to pubsub
-# gcloud projects add-iam-policy-binding hhmi-staging-1 \
-#   --member=serviceAccount:pmc-ftp-invoker@hhmi-staging-1.iam.gserviceaccount.com \
-#   --role=roles/pubsub.publisher
+# Give it permission to publish to pubsub
+gcloud projects add-iam-policy-binding hhmi-staging-1 \
+  --member=serviceAccount:pmc-ftp-invoker@hhmi-staging-1.iam.gserviceaccount.com \
+  --role=roles/pubsub.publisher
 
 # Give it permission to create auth tokens (879616685817 is project number)
 gcloud projects add-iam-policy-binding hhmi-staging-1 \
