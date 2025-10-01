@@ -107,7 +107,7 @@ export function createService() {
       // Initialize the journal client for status updates
       client = new JournalClient(jobUrl, statusUrl, handshake);
       await client.running(res, 'Starting FTP upload job...');
-      const result = AAMDepositManifestSchema.safeParse(JSON.parse(data));
+      const result = AAMDepositManifestSchema.safeParse(JSON.parse(data.toString()));
       console.log('Parsed manifest', result);
 
       if (!result.success) {
