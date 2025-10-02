@@ -30,22 +30,19 @@ import {
   formatZodErrorForStatus,
   type AAMDepositManifest,
 } from 'pmc-utils';
-import {
-  hyphenatedFromDate,
-  removeFolder,
-  respondBadRequest,
-  respondUnableToProcess,
-} from './utils.js';
+import { hyphenatedFromDate, removeFolder } from './utils.js';
+import { pubsubError, JournalClient } from './client.js';
 
 /**
  * Message attributes structure expected from the pub/sub system
  */
 type Attributes = {
-  manifest: AAMDepositManifest;
-  host?: string;
-  port?: number;
-  user?: string;
-  password?: string;
+  userId: string;
+  successState: string;
+  failureState: string;
+  statusUrl: string;
+  jobUrl: string;
+  handshake: string;
 };
 
 /**
@@ -59,7 +56,8 @@ export function createService() {
 
   // Health check endpoint
   app.get('/', async (_, res) => {
-    return res.sendStatus(200);
+    console.log('Received GET request');
+    return res.send('Curvenote FTP Service');
   });
 
   /**
@@ -76,26 +74,44 @@ export function createService() {
    */
   app.post('/', async (req, res) => {
     console.log('Received request', req.body);
-    if (!req.body) return respondBadRequest(res, 'no message received');
     const { body } = req;
-
+    if (!body) return pubsubError('no request body', res);
     const { message } = body;
-    console.log('Message', message);
-    if (!message) return respondBadRequest(res, 'invalid message format');
+    if (!message) return pubsubError('no request message', res);
+    const { attributes, data } = message;
+    if (!data) return pubsubError('no message data', res);
+    if (!attributes) return pubsubError('no message attributes', res);
+
+    let id: string | undefined;
+    let client: JournalClient | undefined;
 
     // Create temporary folder for processing files
     console.log('Creating temporary folder');
     const tmpFolder = await fs.mkdtemp(path.join(os.tmpdir(), 'ftp'));
     console.log('Temporary folder created', tmpFolder);
-    let id: string | undefined;
-
     try {
-      const { attributes } = message;
-      console.log('Received message', JSON.stringify(attributes, null, 2));
+      console.log('Received data', JSON.stringify(data, null, 2));
+      console.log('Received attributes', JSON.stringify(attributes, null, 2));
 
       // Extract and validate the manifest data
-      const { manifest: maybeManifest } = (attributes ?? {}) as Attributes;
-      const result = AAMDepositManifestSchema.safeParse(maybeManifest);
+      const { jobUrl, statusUrl, handshake, successState, failureState, userId } =
+        attributes as Attributes;
+
+      // Validate all required attributes are present
+      if (!jobUrl) return pubsubError('jobUrl is required', res);
+      if (!statusUrl) return pubsubError('statusUrl is required', res);
+      if (!handshake) return pubsubError('handshake is required', res);
+      if (!successState) return pubsubError('successState is required', res);
+      if (!failureState) return pubsubError('failureState is required', res);
+      if (!userId) return pubsubError('userId is required', res);
+
+      const dataDecoded = Buffer.from(data, 'base64').toString('utf-8');
+      console.log('Decoded data', dataDecoded);
+
+      // Initialize the journal client for status updates
+      client = new JournalClient(jobUrl, statusUrl, handshake);
+      await client.running(res, 'Starting FTP upload job...');
+      const result = AAMDepositManifestSchema.safeParse(JSON.parse(dataDecoded));
       console.log('Parsed manifest', result);
 
       if (!result.success) {
@@ -129,6 +145,8 @@ export function createService() {
        * - Default 256KB buffer balances memory usage vs performance
        * - Works with both text and binary files automatically
        */
+
+      await client.running(res, `Downloading ${manifest.files.length} files...`);
 
       // Rate limiter: Allow maximum 5 concurrent downloads to prevent overwhelming
       // the source server or network connection
@@ -201,6 +219,8 @@ export function createService() {
       );
       console.log('Downloaded all files');
 
+      await client.running(res, 'Generating manifest and metadata files...');
+
       /**
        * MANIFEST AND METADATA GENERATION
        *
@@ -220,6 +240,8 @@ export function createService() {
       console.log('Generated XML metadata');
       await fs.writeFile(path.join(tmpFolder, 'bulk_meta.xml'), xml);
       console.log('Wrote bulk_meta.xml');
+
+      await client.running(res, 'Creating archive package...');
 
       /**
        * ARCHIVE CREATION
@@ -242,16 +264,18 @@ export function createService() {
         throw new Error('Error creating tar.gz file');
       }
 
+      await client.running(res, 'Uploading to SFTP server...');
+
       /**
        * SFTP UPLOAD
        *
        * Upload the completed archive to the PMC SFTP server
        * with automatic directory creation based on current date
        */
-      const client = new Client();
+      const sftpClient = new Client();
       console.log('Connecting to SFTP server');
 
-      await client.connect({
+      await sftpClient.connect({
         host: process.env.FTP_HOST,
         port: parseInt(process.env.FTP_PORT ?? '22'),
         username: process.env.FTP_USERNAME,
@@ -263,33 +287,60 @@ export function createService() {
       const targetDir = `upload/${hyphenatedFromDate(new Date())}`;
       console.log('Checking if target directory exists:', targetDir);
 
-      const dirExists = await client.exists(targetDir);
+      const dirExists = await sftpClient.exists(targetDir);
       if (!dirExists) {
         console.log('Creating target directory:', targetDir);
-        await client.mkdir(targetDir);
+        await sftpClient.mkdir(targetDir);
         console.log('Created target directory successfully');
       } else {
         console.log('Target directory already exists');
       }
 
       // Upload the archive
-      await client.put(tarFilePath, `${targetDir}/${tarFileName}`);
+      await sftpClient.put(tarFilePath, `${targetDir}/${tarFileName}`);
       console.log('Uploaded tar file successfully');
 
       // Clean up SFTP connection
-      await client.end();
+      await sftpClient.end();
       console.log('Disconnected from SFTP server');
 
       // Clean up temporary files
       removeFolder(tmpFolder);
       console.log('Removed temporary folder');
 
-      return res.sendStatus(201);
+      await client.putSubmissionStatus(successState, userId, res);
+
+      await client.completed(res, 'FTP upload completed successfully', {
+        tarFileName,
+        targetDir,
+        uploadedFiles: manifest.files.length,
+      });
+
+      return res;
     } catch (err: any) {
       console.error('Error processing deposit:', err);
       // Ensure cleanup even on error
       removeFolder(tmpFolder);
-      return respondUnableToProcess(res, id, err);
+      try {
+        // Update job status to failed and submission status to failure
+        // Only if client was initialized (after attribute validation)
+        if (client) {
+          const { failureState, userId } = (attributes ?? {}) as Attributes;
+          await client.putSubmissionStatus(failureState, userId, res);
+
+          await client.failed(res, `FTP upload failed: ${err.message}`, {
+            error: err.message,
+            taskId: id,
+          });
+        } else {
+          pubsubError('Unable to process submission over FTP', res);
+        }
+      } catch (e) {
+        // These may error if the response has already been sent.
+        // At this point, do not worry about it.
+      }
+
+      return res;
     }
   });
 
